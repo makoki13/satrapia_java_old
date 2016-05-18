@@ -6,6 +6,7 @@ public class Test {
 		// TODO Auto-generated method stub
 		//Comentario antes de saber java :-D
 		System.out.println("Hola, pollo -----");		
+		System.out.println("Adios, pollo -----");
 	}
 
 }
