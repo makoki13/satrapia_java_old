@@ -34,6 +34,8 @@ public class Test {
 	public static void main(String[] args) {
 		System.out.println("Inicio -----");
 		Test.conecta();
+		System.out.println("Fin -----");
+		try {System.in.read();} catch (Exception e) {System.out.println(e.getMessage());}
 	}
 
 }
