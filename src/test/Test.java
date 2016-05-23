@@ -1,11 +1,12 @@
 package test;
 
-import java.sql.*;
 import postgresql.*;
+import satrapia.*;
 
 public class Test {
-	
+	/*
 	public static void conecta() {		
+		
 		String servidor = "172.16.0.72";
 		String baseDeDatos = "Produccion";
 		String usuario = "postgres";
@@ -30,12 +31,15 @@ public class Test {
 			System.out.println(e.getMessage());
 		}				
 	}
+	*/
 
 	public static void main(String[] args) {
 		System.out.println("Inicio -----");
-		Test.conecta();
+		//Test.conecta();
+		Jdbc oBD = new Jdbc();
+		Mapa.carga(oBD);
 		System.out.println("Fin -----");
-		try {System.in.read();} catch (Exception e) {System.out.println(e.getMessage());}
+		//try {System.in.read();} catch (Exception e) {System.out.println(e.getMessage());}
 	}
 
 }
