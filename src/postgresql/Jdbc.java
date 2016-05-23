@@ -8,7 +8,7 @@ import java.sql.Statement;
 
 public class Jdbc {
 	static public Connection conecta(String servidor,String basededatos, String usuario, String password) {
-		String cc = "jdbc:postgresql://172.16.0.72/Produccion?user=postgres&password=vimvsp";
+		String cc = "jdbc:postgresql://"+servidor+"/"+basededatos+"?user="+usuario+"&password="+password;
 		try {
 			Class.forName("org.postgresql.Driver");
 			Connection conexion = DriverManager.getConnection(cc);

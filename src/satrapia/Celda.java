@@ -57,7 +57,7 @@ public class Celda {
 
     public void addRecurso(Recurso r) {
         recursos.add(r);
-        //_interfaz_Recurso.guarda(r);
+        _interfaz_Recurso.guarda(r);
     }
 
     public void setRecurso(Recurso r)
