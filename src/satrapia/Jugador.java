@@ -1,6 +1,10 @@
 package satrapia;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalTime;
+
+import postgresql.Jdbc;
 
 public class Jugador {
 	enum TiposJugador { 
@@ -103,5 +107,133 @@ public class Jugador {
 
         //Creamos la poblacion
         //this.dirigente.capital = new Poblacion(this, Poblacion.TiposPoblacion.CAPITAL, c.getID());  ***TODO         
+    }
+}
+
+class _interfaz_Jugador {
+	static class __usuario
+    {
+        public long id;
+        public String nombre;
+        public String pass;
+        public int tipo;
+        public long region;
+        public int nivelTutorial;
+    }
+
+    public static long existe(String usuario, String pass)
+    {
+        String sql = "SELECT ID FROM Usuarios WHERE UPPER(Nombre)='" + usuario.toUpperCase() + "' AND Pass='" + pass + "'";
+        ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);
+        long id = -1;
+		try {			
+			while(resultado.next()) {
+				id = resultado.getLong("ID");				
+			}		
+		} catch (SQLException e) {
+		// 	TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return id;
+    }
+
+    public static long existe(String usuario)
+    {
+        String sql = "SELECT ID FROM Usuarios WHERE UPPER(Nombre)='" + usuario.toUpperCase() + "'";
+        ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);
+        long id = -1;
+		try {			
+			while(resultado.next()) {
+				id = resultado.getLong("ID");				
+			}		
+		} catch (SQLException e) {
+		// 	TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return id;
+    }
+
+    public static long creaUsuario(String usuario, String pass)
+    {
+        long nuevoID;
+        nuevoID = Mapa.getSiguienteID("USUARIO");
+
+        String sql = "INSERT INTO Usuarios (ID,Nombre,Pass) VALUES (" + nuevoID + ",'" + usuario + "','" + pass + "')";
+        int filas = Jdbc.ejecuta(Mapa.conexion, sql);
+        if (filas == -1) return -1; //Aqui mejor lanzar una excepcion
+
+        return nuevoID;
+    }
+    
+    public static __usuario datosUsuario(long id)
+    {
+        __usuario miUsuario = new __usuario();
+
+        String sql = "SELECT Nombre,Pass,Tipo,Region,COALESCE(NivelTutorial,1) AS NivelTutorial FROM Usuarios WHERE ID=" + id;
+        ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);        
+		try {			
+			while(resultado.next()) {
+				id = resultado.getLong("ID");
+				miUsuario.id = id;				
+	            miUsuario.nombre = resultado.getString("Nombre");
+	            miUsuario.pass = resultado.getString("Pass");
+	            miUsuario.tipo = resultado.getInt("Tipo");
+	            miUsuario.region = resultado.getLong("Region");
+	            miUsuario.nivelTutorial = resultado.getInt("NivelTutorial");
+			}		
+		} catch (SQLException e) {
+		// 	TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return miUsuario;		
+    }
+
+    public static int setNombre(long id, String nombre)
+    {
+        String sql = "UPDATE Usuarios SET Nombre='" + nombre + "' WHERE ID=" + id;
+        int filas = Jdbc.ejecuta(Mapa.conexion, sql);
+        if (filas == -1) return -1; //Aqui mejor lanzar una excepcion
+        return 0;
+    }
+
+    public static int setPass(long id, String pass)
+    {
+        String sql = "UPDATE Usuarios SET Pass='" + pass + "' WHERE ID=" + id;
+        int filas = Jdbc.ejecuta(Mapa.conexion, sql);
+        if (filas == -1) return -1; //Aqui mejor lanzar una excepcion
+        return 0;
+    }
+
+    public static int setTipo(long id, int tipo)
+    {
+        String sql = "UPDATE Usuarios SET Tipo='" + tipo + "' WHERE ID=" + id;
+        int filas = Jdbc.ejecuta(Mapa.conexion, sql);
+        if (filas == -1) return -1; //Aqui mejor lanzar una excepcion
+        return 0;
+    }
+
+    public static long getNumeroEmperadores()
+    {
+        String sql = "SELECT COUNT(*) AS NumRegistros FROM Usuarios WHERE Tipo=3";
+        ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);
+        long numRegistros = 0;
+		try {			
+			while(resultado.next()) {
+				numRegistros = resultado.getLong(0);				
+			}		
+		} catch (SQLException e) {
+		// 	TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+        return numRegistros;
+    }
+
+    public static int setNivelTutorial(long id, long nivel)
+    {
+        String sql = "UPDATE Usuarios SET NivelTutorial=" + nivel + " WHERE ID=" + id;
+        int filas = Jdbc.ejecuta(Mapa.conexion, sql);
+        if (filas == -1) return -1; //Aqui mejor lanzar una excepcion
+        return 0;
     }
 }
