@@ -96,20 +96,20 @@ public class Recurso {
 }
 
 //clase asociada para Modelo **************
-final class _interfaz_Recurso
+final class __recurso
 {
-    class __recurso
-    {
-        public long id;
-        public String nombre;
-        public int tipo;
-        public long cantidad;
-        public int tipoReceptor;
-        public long receptor;
-        public long idCelda;
-        public long idProductor;
-    }
-    
+    public long id;
+    public String nombre;
+    public int tipo;
+    public long cantidad;
+    public int tipoReceptor;
+    public long receptor;
+    public long idCelda;
+    public long idProductor;
+}
+
+final class _interfaz_Recurso
+{    
     public static long guarda(Recurso r)
     {
         long nuevoID;

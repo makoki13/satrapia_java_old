@@ -1,34 +1,13 @@
 package satrapia;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import postgresql.Jdbc;
+import satrapia.Jugador.TiposJugador;
 import satrapia.Recurso.TiposRecurso;
-
-class Potencial
-{
-    private long recurso;
-    private int tipoRecurso;        
-    private Double rendimiento ;
-    private int valorBase;
-            
-    public Potencial(long recurso, int tipoRecurso, int valorBase, Double rendimiento)
-    {
-        this.recurso = recurso;
-        this.tipoRecurso = tipoRecurso;
-        this.valorBase = valorBase;
-        this.rendimiento = rendimiento;            
-    }
-
-    public int getTipo() { return this.tipoRecurso; }
-
-    public int valor() { return (int)(this.valorBase * this.rendimiento);}
-    
-    public void setRendimiento(Double r)
-    {
-        this.rendimiento = r;
-    }
-}
 
 public class Productor {
 	public enum TiposProductor {
@@ -55,7 +34,7 @@ public class Productor {
     public void setID( long id) { this.ID = id; }
 
     protected int celda;
-    public void _set_Celda(int valor) {celda=valor;_interfaz_productor.setCelda(this.ID, this._celda);}
+    public void _set_Celda(int valor) {celda=valor;_interfaz_Productor.setCelda(this.ID, this.celda);}
     public int _get_Celda() {return celda;}
         
     public void setCelda(int celda) { this.celda = celda; }
@@ -63,15 +42,16 @@ public class Productor {
     public long jugador;
     public long getJugador() { return this.jugador; }
 
+    private ArrayList<Potencial> potenciales = new ArrayList<Potencial>();
+    
     public int nivel;
     public void _set_Nivel(int valor) {
     	nivel=valor;
-    	_interfaz_productor.setNivel(this.ID, this._nivel);
-    	Double rendimiento = _interfaz_productor.getRendimientoNivel((int)this.tipo, this._nivel);
-        foreach (Potencial p in this.potenciales)
-        {
-            p.setRendimiento(rendimiento);
-        }
+    	_interfaz_Productor.setNivel(this.ID, this.nivel);
+    	Double rendimiento = _interfaz_Productor.getRendimientoNivel(this.tipo.ordinal(), this.nivel);
+        for (Potencial pot : this.potenciales){
+        	pot.setRendimiento(rendimiento);
+        }        
     }
     public int _get_Nivel() {return nivel;}
     
@@ -80,19 +60,20 @@ public class Productor {
     protected int cardinal;
     public int getCardinal() { return this.cardinal; }
 
-    private ArrayList<Recurso> recursos = new ArrayList<Recurso>();
-    private ArrayList<Potencial> potenciales = new ArrayList<Potencial>();
+    private ArrayList<Recurso> recursos = new ArrayList<Recurso>();    
     private ArrayList<Recurso> costes = new ArrayList<Recurso>();
+    
+    public ArrayList<Recurso> getCostes() {return costes;}
                 
     public Productor() {}
 
     public Productor(long jugador, int celda, TiposProductor tipo) {
-    	_interfaz_productor.__productor p = _interfaz_productor.loadProductor(jugador,celda,tipo);
+    	_interfaz_Productor.__productor p = _interfaz_Productor.loadProductor(jugador,celda,tipo);
         this.tipo = tipo;
-        this._celda = celda;
+        this.celda = celda;
         this.jugador = jugador;            
         this.recursos = p.recursos;
-        this._nivel = p.nivel;
+        this.nivel = p.nivel;
         this.cardinal = p.cardinal;
 
         this.getPotenciales();
@@ -100,24 +81,24 @@ public class Productor {
 
     public Productor(long id) {
         this.ID = id;
-        _interfaz_productor.__productor p = _interfaz_productor.loadProductor(id);
-        this.tipo = (TiposProductor)p.tipo;
-        this._celda = p.celda;
+        _interfaz_Productor.__productor p = _interfaz_Productor.loadProductor(id);
+        this.tipo = TiposProductor.values()[p.tipo];
+        this.celda = p.celda;
         this.jugador = p.jugador;
         this.recursos = p.recursos;
-        this._nivel = p.nivel;
+        this.nivel = p.nivel;
         this.cardinal = p.cardinal;
 
         this.getPotenciales();
     }
 
     public Productor(TiposProductor tipo, int celda, long jugador, int nivel) {
-    	_interfaz_productor.__productor p = _interfaz_productor.creaProductor((int)tipo, celda, jugador, nivel, 1);
+    	_interfaz_Productor.__productor p = _interfaz_Productor.creaProductor(tipo.ordinal(), celda, jugador, nivel, 1);
         this.ID = p.id;
-        this.tipo = (TiposProductor)p.tipo;
-        this._celda = p.celda;
+        this.tipo = TiposProductor.values()[p.tipo];
+        this.celda = p.celda;
         this.jugador = p.jugador;
-        this._nivel = nivel;
+        this.nivel = nivel;
         this.cardinal = 1;
             
         this.getPotenciales();
@@ -140,11 +121,11 @@ public class Productor {
                 
     public void getPotenciales()
     {
-    	List<_interfaz_productor.__potencial> p = _interfaz_productor.loadPotenciales(this.ID);
-        foreach (_interfaz_productor.__potencial registro in p)
+    	ArrayList<__potencial> p = _interfaz_Productor.loadPotenciales(this.ID);    	
+        for (__potencial registro : p)
         {
         	Potencial pot = new Potencial(registro.id, registro.tipo, registro.baseRecurso, registro.rendimiento);
-            potenciales.Add(pot);
+            potenciales.add(pot);
         }
     }    
                 
@@ -159,73 +140,73 @@ public class Productor {
 		throw new NullPointerException();		
     }
 
-        public int getCantidadExtraccion(Recurso.TiposRecurso tipo)
-        {
-            Potencial p = this.getPotencial(tipo);
-            return p.valor();
-        }
-
-        //Gestión de los recursos
-        public void addRecurso(Recurso.TiposRecurso tipo)
-        {
-            _interfaz_Recurso.__recurso p = _interfaz_productor.creaRecurso(tipo, this.ID);
-            Recurso r = new Recurso(p.id);            
-            recursos.Add(r);                            
-        }
-
-        public void asignaRecursoToLista(Recurso r) { recursos.add(r); }
-
-        private Recurso getRecurso(Recurso.TiposRecurso indice)
-        {
-        	Recurso r;
-        	Iterator<Recurso> recursosIterator = recursos.iterator();    	
-    		while (recursosIterator.hasNext()) {
-    			r=recursosIterator.next();
-    			if (r._get_Tipo()==indice) return r;			
-    		}
-    		throw new NullPointerException();    		
-        }
-
-        public boolean existeRecurso(Recurso.TiposRecurso tipo)
-        {        	
-            for (Recurso r : this.recursos)
-            {
-                if (r._get_Tipo() == tipo) return true;
-            }
-            return false;
-        }
-
-        public long stock(Recurso.TiposRecurso recurso)
-        {
-            //Determinar el recursos en recursos y devolver su stock;
-            Recurso c = getRecurso(recurso);
-            return c._get_Cantidad();
-        }
-
-        public void mete(Recurso.TiposRecurso recurso, long cantidad)
-        {
-            //Determinar el recursos en recursos y sumarle stock;
-            Recurso c = getRecurso(recurso);
-            c.addCantidad(cantidad);
-        }
-
-        public long saca(Recurso.TiposRecurso recurso, long cantidad)
-        {
-            //Determinar el recurso en recursos y restarle stock;
-            Recurso c = getRecurso(recurso);
-            if (c._get_Cantidad() < cantidad) return -1;
-            c.extrae(cantidad);
-            return cantidad;
-        }
-
-        public void extrae(Recurso.TiposRecurso recurso)
-        {
-            //Primero se determina segun su potencial cuanto va a extraer cada vez. Entonces se genera una tarea. Cuando se cumpla la tarea se asignara la cantidad de recurso al recurso del Productor.
-            //Si no está lleno se vuelve a empezar. Si está lleno se paraliza la extracción y se envía un correo.
-        }
-                
-        public void ejecuta(int accion, ArrayList<String> parametros) { }
+    public int getCantidadExtraccion(Recurso.TiposRecurso tipo)
+    {
+        Potencial p = this.getPotencial(tipo);
+        return p.valor();
     }
+
+    //Gestión de los recursos
+    public void addRecurso(Recurso.TiposRecurso tipo)
+    {
+        __recurso p = _interfaz_Productor.creaRecurso(tipo, this.ID);
+        Recurso r = new Recurso(p.id);            
+        recursos.add(r);                            
+    }
+
+    public void asignaRecursoToLista(Recurso r) { recursos.add(r); }
+
+    private Recurso getRecurso(Recurso.TiposRecurso indice)
+    {
+    	Recurso r;
+    	Iterator<Recurso> recursosIterator = recursos.iterator();    	
+		while (recursosIterator.hasNext()) {
+			r=recursosIterator.next();
+			if (r._get_Tipo()==indice) return r;			
+		}
+		throw new NullPointerException();    		
+    }
+
+    public boolean existeRecurso(Recurso.TiposRecurso tipo)
+    {        	
+        for (Recurso r : this.recursos)
+        {
+            if (r._get_Tipo() == tipo) return true;
+        }
+        return false;
+    }
+
+    public long stock(Recurso.TiposRecurso recurso)
+    {
+        //Determinar el recursos en recursos y devolver su stock;
+        Recurso c = getRecurso(recurso);
+        return c._get_Cantidad();
+    }
+
+    public void mete(Recurso.TiposRecurso recurso, long cantidad)
+    {
+        //Determinar el recursos en recursos y sumarle stock;
+        Recurso c = getRecurso(recurso);
+        c.addCantidad(cantidad);
+    }
+
+    public long saca(Recurso.TiposRecurso recurso, long cantidad)
+    {
+        //Determinar el recurso en recursos y restarle stock;
+        Recurso c = getRecurso(recurso);
+        if (c._get_Cantidad() < cantidad) return -1;
+        c.extrae(cantidad);
+        return cantidad;
+    }
+
+    public void extrae(Recurso.TiposRecurso recurso)
+    {
+        //Primero se determina segun su potencial cuanto va a extraer cada vez. Entonces se genera una tarea. Cuando se cumpla la tarea se asignara la cantidad de recurso al recurso del Productor.
+        //Si no está lleno se vuelve a empezar. Si está lleno se paraliza la extracción y se envía un correo.
+    }
+            
+    public void ejecuta(int accion, ArrayList<String> parametros) { }
+}
 
     class Ejercito extends Productor
     {
@@ -234,7 +215,7 @@ public class Productor {
         public Ejercito(long id) {
         	super(id);
             //Estas instrucciones desde la base de datos
-            this.numero = 1; //Primer ejercito
+            numero = 1; //Primer ejercito
         }
 
         public Ejercito(TiposProductor tipo, int celda, long jugador, int nivel) { 
@@ -250,6 +231,8 @@ public class Productor {
             this.celda = productor.celda;
             this.cardinal = productor.getCardinal();
         }
+        
+        public long getNumero() {return numero; }
 
         public void ejecuta(int accion, ArrayList<String> parametros)
         {
@@ -327,20 +310,20 @@ public class Productor {
         }
     }
 
-    public class Serreria extends Productor
+    class Serreria extends Productor
     {
 
-        public Serreria(long id) : base(id)
+        public Serreria(long id)
         {
-
+        	super(id);
         }
 
-        public Serreria(TiposProductor tipo, int celda, long jugador, int nivel) : base(tipo, celda, jugador, nivel)
+        public Serreria(TiposProductor tipo, int celda, long jugador, int nivel)
         {
-
+        	super(tipo, celda, jugador, nivel);
         }
         
-        public override void ejecuta(int accion, List<object> parametros)
+        public void ejecuta(int accion, ArrayList<String> parametros)
         {
             switch (accion)
             {
@@ -354,20 +337,20 @@ public class Productor {
         }
     }
 
-    public class Cantera extends Productor
+    class Cantera extends Productor
     {
 
-        public Cantera(long id) : base(id)
+        public Cantera(long id)
         {
-
+        	super(id);
         }
 
-        public Cantera(TiposProductor tipo, int celda, long jugador, int nivel) : base(tipo, celda, jugador, nivel)
+        public Cantera(TiposProductor tipo, int celda, long jugador, int nivel)
         {
-
+        	super(tipo, celda, jugador, nivel);
         }
 
-        public override void ejecuta(int accion, List<object> parametros)
+        public void ejecuta(int accion, ArrayList<String> parametros)
         {
             switch (accion)
             {
@@ -381,19 +364,19 @@ public class Productor {
         }
     }
 
-    public class MinaOro extends Productor
+    class MinaOro extends Productor
     {       
-        public MinaOro(long id) : base(id)
+        public MinaOro(long id) 
         {
-
+        	super(id);
         }
 
-        public MinaOro(TiposProductor tipo, int celda, long jugador, int nivel) : base (tipo, celda, jugador, nivel)
+        public MinaOro(TiposProductor tipo, int celda, long jugador, int nivel)
         {
-
+        	super(tipo, celda, jugador, nivel);
         }
         
-        public override void ejecuta(int accion, List<object> parametros)
+        public void ejecuta(int accion, ArrayList<String> parametros)
         {
             switch (accion)
             {
@@ -407,28 +390,28 @@ public class Productor {
         }
     }
 
-    public class Palacio extends Productor
+    class Palacio extends Productor
     {
-        public Palacio(long id) : base(id)
+        public Palacio(long id)
         {
-
+        	super(id);
         }
 
-        public Palacio(TiposProductor tipo, int celda, long jugador, int nivel) : base(tipo, celda, jugador, nivel)
+        public Palacio(TiposProductor tipo, int celda, long jugador, int nivel)
         {
-
+        	super(tipo, celda, jugador, nivel);
         }
 
         public Palacio(Productor productor)
         {
             this.ID = productor.getID();
-            this._nivel = productor.nivel;
+            this.nivel = productor.nivel;
             this.tipo = productor.getTipo();
             this.setRecursos(productor.getRecursos());
             this.celda = productor.celda;
         }
 
-        public override void ejecuta(int accion, List<object> parametros)
+        public void ejecuta(int accion, ArrayList<String> parametros)
         {
             switch (accion)
             {
@@ -449,110 +432,110 @@ public class Productor {
         }
     }
 
-    public class Gobierno extends Productor
+    class Gobierno extends Productor
     {
-        public Gobierno(long id) : base(id)
+        public Gobierno(long id)
         {
-
+        	 super(id);
         }
 
-        public Gobierno(TiposProductor tipo, int celda, long jugador, int nivel) : base(tipo, celda, jugador, nivel)
+        public Gobierno(TiposProductor tipo, int celda, long jugador, int nivel)
         {
-
+        	super(tipo, celda, jugador, nivel);
         }
 
         public Gobierno(Productor productor)
         {
             this.ID = productor.getID();
-            this._nivel = productor.nivel;
+            this.nivel = productor.nivel;
             this.tipo = productor.getTipo();
             this.setRecursos(productor.getRecursos());
             this.celda = productor.celda;
         }                        
     }
 
-    public class Almacen extends Productor
+    class Almacen extends Productor
     {
-        public Almacen(long id) : base(id)
+        public Almacen(long id)
         {
-
+        	super(id);
         }
 
-        public Almacen(TiposProductor tipo, int celda, long jugador, int nivel) : base(tipo, celda, jugador, nivel)
+        public Almacen(TiposProductor tipo, int celda, long jugador, int nivel)
         {
-
+        	super(tipo, celda, jugador, nivel);
         }
 
         public Almacen(Productor productor)
         {
             this.ID = productor.getID();
-            this._nivel = productor.nivel;
+            this.nivel = productor.nivel;
             this.tipo = productor.getTipo();
             this.setRecursos(productor.getRecursos());
             this.celda = productor.celda;
         }
     }
 
-    public class Banco extends Productor
+    class Banco extends Productor
     {
-        public Banco(long id) : base(id)
+        public Banco(long id)
         {
-
+        	super(id);
         }
 
-        public Banco(TiposProductor tipo, int celda, long jugador, int nivel) : base(tipo, celda, jugador, nivel)
+        public Banco(TiposProductor tipo, int celda, long jugador, int nivel)
         {
-
+        	super(tipo, celda, jugador, nivel);
         }
 
         public Banco(Productor productor)
         {
             this.ID = productor.getID();
-            this._nivel = productor.nivel;
+            this.nivel = productor.nivel;
             this.tipo = productor.getTipo();
             this.setRecursos(productor.getRecursos());
             this.celda = productor.celda;
         }
     }
 
-    public class Academia extends Productor
+    class Academia extends Productor
     {
-        public Academia(long id) : base(id)
+        public Academia(long id)
         {
-
+        	super(id);
         }
 
-        public Academia(TiposProductor tipo, int celda, long jugador, int nivel) : base(tipo, celda, jugador, nivel)
+        public Academia(TiposProductor tipo, int celda, long jugador, int nivel)
         {
-
+        	super(tipo, celda, jugador, nivel);
         }
 
         public Academia(Productor productor)
         {
             this.ID = productor.getID();
-            this._nivel = productor.nivel;
+            this.nivel = productor.nivel;
             this.tipo = productor.getTipo();
             this.setRecursos(productor.getRecursos());
             this.celda = productor.celda;
         }
     }
 
-    public class Cuartel extends Productor
+    class Cuartel extends Productor
     {
-        public Cuartel(long id) : base(id)
+        public Cuartel(long id)
         {
-
+        	super(id);
         }
 
-        public Cuartel(TiposProductor tipo, int celda, long jugador, int nivel) : base(tipo, celda, jugador, nivel)
+        public Cuartel(TiposProductor tipo, int celda, long jugador, int nivel)
         {
-
+        	super(tipo, celda, jugador, nivel);
         }
 
         public Cuartel(Productor productor)
         {
             this.ID = productor.getID();
-            this._nivel = productor.nivel;
+            this.nivel = productor.nivel;
             this.tipo = productor.getTipo();
             this.jugador = productor.getJugador();
             this.setRecursos(productor.getRecursos());
@@ -560,14 +543,14 @@ public class Productor {
             this.cardinal = productor.getCardinal();
         }
 
-        public void entrena(Recurso_Militar.TiposRecurso tipoRecurso, int cantidad, int ejercito = 1)
+        public void entrena(Recurso.TiposRecurso tipoRecurso, int cantidad, int ejercito) //ejercito=1 en C#
         {
             Ejercito miEjercito;
-
+            
             Jugador j = new Jugador(this.getJugador());
             //Si no existe el ejercito se crea
-            List<Productor> lista = j.dirigente.getListaProductores(Productor.TiposProductor.EJERCITO);
-            if (lista.Count == 0)
+            ArrayList<Productor> lista = j.dirigente.getListaProductores(Productor.TiposProductor.EJERCITO);
+            if (lista.size() == 0)
             {
                 Poblacion capital = j.dirigente.capital;
                 int celda = capital.idCelda();
@@ -575,54 +558,329 @@ public class Productor {
             }
             else
             {
-                miEjercito = new Ejercito(lista.ElementAt(0));
+                miEjercito = new Ejercito(lista.get(0));
             }
             //Se asigna al recurso ejercito el numero de soldados reclutados. Esto se hará con un evento
             _Productor_rutinas.RECLUTA(miEjercito, tipoRecurso, cantidad);
         }
     }
 
-    public class CentroInteligencia extends Productor
+    class CentroInteligencia extends Productor
     {
-        public CentroInteligencia(long id) : base(id)
+        public CentroInteligencia(long id)
         {
-
+        	super(id);
         }
 
-        public CentroInteligencia(TiposProductor tipo, int celda, long jugador, int nivel) : base(tipo, celda, jugador, nivel)
+        public CentroInteligencia(TiposProductor tipo, int celda, long jugador, int nivel)
         {
-
+        	super(tipo, celda, jugador, nivel);
         }
 
         public CentroInteligencia(Productor productor)
         {
             this.ID = productor.getID();
-            this._nivel = productor.nivel;
+            this.nivel = productor.nivel;
             this.tipo = productor.getTipo();
             this.setRecursos(productor.getRecursos());
             this.celda = productor.celda;
         }
     }
 
-    public class Embajada extends Productor
+    class Embajada extends Productor
     {
-        public Embajada(long id) : base(id)
+        public Embajada(long id)
         {
-
+        	super(id);
         }
 
-        public Embajada(TiposProductor tipo, int celda, long jugador, int nivel) : base(tipo, celda, jugador, nivel)
+        public Embajada(TiposProductor tipo, int celda, long jugador, int nivel)
         {
-
+        	super(tipo, celda, jugador, nivel);
         }
 
         public Embajada(Productor productor)
         {
             this.ID = productor.getID();
-            this._nivel = productor.nivel;
+            this.nivel = productor.nivel;
             this.tipo = productor.getTipo();
             this.setRecursos(productor.getRecursos());
             this.celda = productor.celda;
         }
     }
-}
+
+/******************************************************************************************************************************************************************/
+/******************************************************************************************************************************************************************/
+/******************************************************************************************************************************************************************/
+
+    final class __potencial
+    {
+        public long id;
+        public int tipo;
+        public Double rendimiento;
+        public int baseRecurso;            
+    }
+    
+    class _interfaz_Productor {
+    	static class __productor
+        {
+            public long id;
+            public int tipo;
+            public int celda;            
+            public long jugador;
+            public int nivel;
+            public int cardinal;
+            public Double rendimiento;
+            public ArrayList<Recurso> recursos;
+        }
+    	
+        public static __productor loadProductor(long id)
+        {
+            __productor p = new __productor();
+            String sql = "" +
+                "SELECT Tipo,Celda,Jugador,Nivel,"
+                + "COALESCE((SELECT COALESCE(Rendimiento,1) FROM Productor_Niveles WHERE Tipo_Productor=P.Tipo AND Nivel=P.Nivel),1) AS Rendimiento,"
+                + "COALESCE(Cardinal,0) AS Cardinal " +
+                "FROM Productor P WHERE ID=" + id;
+            ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);
+    		try {
+    			while(resultado.next()) {
+    				p.id = id;
+    				p.tipo = resultado.getInt("Tipo");
+    				p.celda = resultado.getInt("Celda");
+    				p.jugador = resultado.getLong("Jugador");
+    				p.nivel = resultado.getInt("Nivel");
+    				p.rendimiento = resultado.getDouble("Rendimiento");
+    				p.cardinal = resultado.getInt("Cardinal");
+    				p.recursos  = new ArrayList<Recurso>();
+    				
+    				sql = " select id from Recursos where id_Productor = " + id;
+    				resultado = Jdbc.consulta(Mapa.conexion, sql);
+    				long idRecurso;
+    				try {
+    	    			while(resultado.next()) {
+    	    				 idRecurso = resultado.getLong("Jugador");
+    	                     Recurso r = new Recurso(idRecurso);
+    	                     p.recursos.add(r);
+    	    			}
+    				} catch (SQLException e) {
+    	    		// 	TODO Auto-generated catch block
+    	    			e.printStackTrace();
+    	    		}
+    			}
+    		} catch (SQLException e) {
+    		// 	TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}		            
+    		
+    		return p;
+    	}
+
+        public static __productor loadProductor(long jugador, int celda, Productor.TiposProductor tipo)
+        {
+            __productor p = new __productor();
+            String sql = "SELECT ID,Nivel FROM Productor P WHERE Tipo =" + tipo.ordinal() + " AND Jugador = " + jugador + " AND Celda = " + celda;
+            ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);			
+			try {
+    			while(resultado.next()) {
+    				p.id = resultado.getLong("ID");
+                    p.tipo = tipo.ordinal();
+                    p.celda = celda;
+                    p.jugador = jugador;
+                    p.nivel = resultado.getInt("Nivel");
+    				    				
+                    sql = " select id from Recursos where id_Productor = " + p.id;
+                    ResultSet resultadoRecursos = Jdbc.consulta(Mapa.conexion, sql);
+    				long idRecurso;
+    				try {
+    	    			while(resultadoRecursos.next()) {
+    	    				 idRecurso = resultadoRecursos.getLong("Jugador");
+    	                     Recurso r = new Recurso(idRecurso);
+    	                     p.recursos.add(r);
+    	    			}
+    				} catch (SQLException e) {
+    	    		// 	TODO Auto-generated catch block
+    	    			e.printStackTrace();
+    	    		}
+    			}
+			} catch (SQLException e) {
+    		// 	TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+			
+			return p;
+        }
+
+        public static __productor creaProductor(int tipo, int celda, long jugador, int nivel, float rendimiento)
+        {
+            long nuevoID;
+            __productor p = new __productor();
+            
+            nuevoID = Mapa.getSiguienteID("PRODUCTOR");
+            String sql = "INSERT INTO Productor (ID,Tipo, Celda, Jugador, Nivel, Cardinal, Rendimiento) VALUES (" + nuevoID + "," + tipo + "," + celda + "," + jugador + "," + nivel + ",1," + rendimiento + ")";
+            int filas = Jdbc.ejecuta(Mapa.conexion, sql);
+            if (filas == -1) return null; //Aqui mejor lanzar una excepcion
+            
+            p.id = nuevoID;
+            p.tipo = tipo;
+            p.celda = celda;
+            p.jugador = jugador;
+            p.nivel = nivel;
+            p.cardinal = 1;
+            p.rendimiento = 0.0; // *****NO SE GASTA
+            
+            return p;
+        }
+
+        public static int setCelda(long id, int celda)
+        {
+            String sql = "UPDATE Productor SET Celda=" + celda + " WHERE ID=" + id;
+            int filas = Jdbc.ejecuta(Mapa.conexion, sql);
+            if (filas == -1) return -1; //Aqui mejor lanzar una excepcion
+            return 0;
+        }
+
+        public static __recurso creaRecurso(Recurso.TiposRecurso tipo, long ID)
+        {
+            __recurso recurso = new __recurso(); 
+
+            recurso.tipo = tipo.ordinal();
+            recurso.tipoReceptor = Recurso.TiposReceptor.PRODUCTOR.ordinal();
+            recurso.cantidad = 0;
+            recurso.receptor = ID;
+
+            recurso.id =_interfaz_Recurso.guarda(recurso);
+            return recurso;
+        }
+     
+        public static ArrayList<__potencial> loadPotenciales(long idProductor)
+        {
+            ArrayList<__potencial> lista = new ArrayList<__potencial>();
+
+            String sql =
+                "SELECT ID,Tipo,COALESCE(Base,0) AS Base,"+
+                "COALESCE((SELECT Rendimiento FROM Productor_Niveles WHERE (Tipo_Productor,Nivel) = (SELECT Tipo,Nivel FROM Productor WHERE ID=" + idProductor + ") ) , 1) AS Rendimiento " +
+                "FROM Recursos P " + 
+                "WHERE ID_Productor = " + idProductor;
+            ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);
+    		try {
+    			while(resultado.next()) {
+    				__potencial p = new __potencial();
+    				
+    				p.id = resultado.getLong("ID");
+    				p.tipo = resultado.getInt("Tipo");
+    				p.baseRecurso = resultado.getInt("Base");
+    				p.rendimiento = resultado.getDouble("Rendimiento");
+    				
+    				lista.add(p);
+    			}
+    		} catch (SQLException e) {
+    		// 	TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}	
+    		return lista;            
+        }
+
+        public static Posicion getPosicionCapital(long jugador)
+        {
+            Posicion pos;
+            int posX=0; int posY=0;
+            String sql = "SELECT Posicion_X,Posicion_Y FROM Celda WHERE ID=(SELECT Celda FROM Productor WHERE Tipo=0 AND Jugador=" + jugador+")";
+            ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);
+    		try {
+    			while(resultado.next()) {    				
+    				posX = resultado.getInt("Posicion_X");
+    				posY = resultado.getInt("Posicion_Y");    				
+    			}
+    		} catch (SQLException e) {
+    		// 	TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}	
+    		pos = new Posicion(posX,posY);
+            return pos;    		
+        }
+
+        public static ArrayList<Productor> getListaProductoresJugadorTipo(long jugador, int tipo)
+        {
+            ArrayList<Productor> lista = new ArrayList<Productor>();
+            Long id;
+            
+            String sql = "SELECT ID FROM Productor P WHERE Jugador = " + jugador + " AND Tipo = " + tipo + " ORDER BY ID";
+            ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);
+    		try {
+    			while(resultado.next()) {    				
+    				id = resultado.getLong("ID");
+    				Productor productor = new Productor(id);
+    				lista.add(productor);    				
+    			}
+    		} catch (SQLException e) {
+    		// 	TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    		return lista;
+        }
+
+        public static ArrayList<Productor> getListaProductoresJugador(long jugador)
+        {
+            ArrayList<Productor> lista = new ArrayList<Productor>();
+            Long id;
+
+            String sql = "SELECT ID FROM Productor P WHERE Jugador = " + jugador + " ORDER BY ID";
+            ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);
+    		try {
+    			while(resultado.next()) {    				
+    				id = resultado.getLong("ID");
+    				Productor productor = new Productor(id);
+    				lista.add(productor);    				
+    			}
+    		} catch (SQLException e) {
+    		// 	TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    		return lista;
+        }
+
+        public static int setNivel(long id, int nivel) 
+        {
+            String sql = "UPDATE Productor SET Nivel =" + nivel + " WHERE ID=" + id;
+            int filas = Jdbc.ejecuta(Mapa.conexion, sql);
+            if (filas == -1) return -1; //Aqui mejor lanzar una excepcion
+            return 0;
+        }
+
+        public static Double getRendimientoNivel(int tipo, int nivel)
+        {
+            Double rendimiento = 1.0;
+
+            String sql = "SELECT Rendimiento FROM Productor_Niveles WHERE Tipo_Productor = " + tipo + " AND Nivel = " + nivel;
+            ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);
+            try {
+    			while(resultado.next()) {    				
+    				rendimiento = resultado.getDouble("ID");    				    				
+    			}
+    		} catch (SQLException e) {
+    		// 	TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+            return rendimiento;
+        }
+
+        public static ArrayList<Integer> getListaTipos()
+        {
+        	ArrayList<Integer> lista = new ArrayList<Integer>();
+            int id;
+            
+            String sql = "SELECT ID,Nombre FROM Tipos_Productor ORDER BY ID";            
+            ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);
+            try {
+    			while(resultado.next()) {    				
+    				id = resultado.getInt("ID");
+    				lista.add(id);
+    			}
+    		} catch (SQLException e) {
+    		// 	TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+            return lista;
+        }
+    }
