@@ -58,25 +58,25 @@ public class Dirigente {
         this.ID = dirigente.id;
         this.region = dirigente.region;
         this.capital = new Poblacion(jugador);
-        this.listaProductores = _interfaz_productor.getListaProductoresJugador(jugador.getID());
-        foreach(Productor p in this.listaProductores)
+        this.listaProductores = Productor.getListaProductoresJugador(jugador.getID());
+        for(Productor p : this.listaProductores)
         {
             switch (p.getTipo())
             {
-                case Productor.TiposProductor.ACADEMIA: { this.academia = new Academia(p); break; }
-                case Productor.TiposProductor.ALMACEN: { this.almacen = new Almacen(p); break; }
-                case Productor.TiposProductor.BANCO: { this.banco = new Banco(p); break; }
-                case Productor.TiposProductor.CASTILLO: { this.palacio = new Palacio(p); break; }
-                case Productor.TiposProductor.CENTRO_INTELIGENCIA: { this.centroInteligencia = new CentroInteligencia(p); break; }
-                case Productor.TiposProductor.CUARTEL: { this.cuartel = new Cuartel(p); break; }
-                case Productor.TiposProductor.EMBAJADA: { this.embajada = new Embajada(p); break; }
-                case Productor.TiposProductor.GOBIERNO: { this.gobierno = new Gobierno(p); break; }
-                case Productor.TiposProductor.GRANJA: { listaGranjas.Add(p); break; }
-                case Productor.TiposProductor.MINA_HIERRO: { listaMinasHierro.Add(p); break; }
-                case Productor.TiposProductor.MINA_ORO: { listaMinasOro.Add(p); break; }
-                case Productor.TiposProductor.CANTERA: { listaCanteras.Add(p); break; }
-                case Productor.TiposProductor.SERRERIA: { listaSerrerias.Add(p); break; }
-                case Productor.TiposProductor.EJERCITO: { listaEjercitos.Add(p); break; }
+                case ACADEMIA: { this.academia = new Academia(p); break; }
+                case ALMACEN: { this.almacen = new Almacen(p); break; }
+                case BANCO: { this.banco = new Banco(p); break; }
+                case CASTILLO: { this.palacio = new Palacio(p); break; }
+                case CENTRO_INTELIGENCIA: { this.centroInteligencia = new CentroInteligencia(p); break; }
+                case CUARTEL: { this.cuartel = new Cuartel(p); break; }
+                case EMBAJADA: { this.embajada = new Embajada(p); break; }
+                case GOBIERNO: { this.gobierno = new Gobierno(p); break; }
+                case GRANJA: { listaGranjas.add(p); break; }
+                case MINA_HIERRO: { listaMinasHierro.add(p); break; }
+                case MINA_ORO: { listaMinasOro.add(p); break; }
+                case CANTERA: { listaCanteras.add(p); break; }
+                case SERRERIA: { listaSerrerias.add(p); break; }
+                case EJERCITO: { listaEjercitos.add(p); break; }
             }
         }
 
@@ -87,28 +87,28 @@ public class Dirigente {
 
     public Posicion getPosicionCapital()
     {
-        return this.capital.posicion;
+        return this.capital._get_Posicion();
     }
 
-    public List<Productor> getListaProductores(Productor.TiposProductor tipo)
+    public ArrayList<Productor> getListaProductores(Productor.TiposProductor tipo)
     {
         switch (tipo)
         {
-            case Productor.TiposProductor.ACADEMIA: { List<Productor> lista = new List<Productor>(); lista.Add(this.academia); return lista; }
-            case Productor.TiposProductor.ALMACEN: { List<Productor> lista = new List<Productor>(); lista.Add(this.almacen); return lista; }
-            case Productor.TiposProductor.BANCO: { List<Productor> lista = new List<Productor>(); lista.Add(this.banco); return lista; }
-            case Productor.TiposProductor.CASTILLO: { List<Productor> lista = new List<Productor>(); lista.Add(this.palacio); return lista; }
-            case Productor.TiposProductor.CENTRO_INTELIGENCIA: { List<Productor> lista = new List<Productor>(); lista.Add(this.centroInteligencia); return lista; }
-            case Productor.TiposProductor.CUARTEL: { List<Productor> lista = new List<Productor>(); lista.Add(this.cuartel); return lista; }
-            case Productor.TiposProductor.EMBAJADA: { List<Productor> lista = new List<Productor>(); lista.Add(this.embajada); return lista; }
-            case Productor.TiposProductor.GOBIERNO: { List<Productor> lista = new List<Productor>(); lista.Add(this.gobierno); return lista; }
+            case ACADEMIA: { ArrayList<Productor> lista = new ArrayList<Productor>(); lista.add(this.academia); return lista; }
+            case ALMACEN: { ArrayList<Productor> lista = new ArrayList<Productor>(); lista.add(this.almacen); return lista; }
+            case BANCO: { ArrayList<Productor> lista = new ArrayList<Productor>(); lista.add(this.banco); return lista; }
+            case CASTILLO: { ArrayList<Productor> lista = new ArrayList<Productor>(); lista.add(this.palacio); return lista; }
+            case CENTRO_INTELIGENCIA: { ArrayList<Productor> lista = new ArrayList<Productor>(); lista.add(this.centroInteligencia); return lista; }
+            case CUARTEL: { ArrayList<Productor> lista = new ArrayList<Productor>(); lista.add(this.cuartel); return lista; }
+            case EMBAJADA: { ArrayList<Productor> lista = new ArrayList<Productor>(); lista.add(this.embajada); return lista; }
+            case GOBIERNO: { ArrayList<Productor> lista = new ArrayList<Productor>(); lista.add(this.gobierno); return lista; }
 
-            case Productor.TiposProductor.GRANJA: { return this.listaGranjas; }
-            case Productor.TiposProductor.MINA_HIERRO: { return this.listaMinasHierro; }
-            case Productor.TiposProductor.MINA_ORO: { return this.listaMinasOro; }
-            case Productor.TiposProductor.SERRERIA: { return this.listaSerrerias; }
-            case Productor.TiposProductor.CANTERA: { return this.listaCanteras; }
-            case Productor.TiposProductor.EJERCITO: { return this.listaEjercitos; }
+            case GRANJA: { return this.listaGranjas; }
+            case MINA_HIERRO: { return this.listaMinasHierro; }
+            case MINA_ORO: { return this.listaMinasOro; }
+            case SERRERIA: { return this.listaSerrerias; }
+            case CANTERA: { return this.listaCanteras; }
+            case EJERCITO: { return this.listaEjercitos; }
             default: return null;
         }
     }

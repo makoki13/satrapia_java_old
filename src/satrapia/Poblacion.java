@@ -16,7 +16,7 @@ public class Poblacion {
 
     private Posicion posicion;
     public void _set_Posicion(Posicion valor) {posicion=valor;}
-    public Posicion _get_Capital() {return posicion;}
+    public Posicion _get_Posicion() {return posicion;}
     
     public Poblacion (Jugador j)
     {

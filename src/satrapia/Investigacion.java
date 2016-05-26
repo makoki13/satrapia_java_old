@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import postgresql.Jdbc;
-import satrapia.Recurso.TiposRecurso;
 
 public class Investigacion {        
     public enum TiposInvestigacion {
@@ -64,8 +63,7 @@ class _interfaz_investigacion {
 	public static ArrayList<Investigacion> getInvestigaciones(long jugador)
     {
         int id;
-        String nombre;
-        Investigacion.TiposInvestigacion tipo;
+        String nombre;        
         int nivelActual;
         int maxNivel;
         int tiempo = 0;            
@@ -86,8 +84,7 @@ class _interfaz_investigacion {
 		try {
 			while(resultado.next()) {
 				id = resultado.getInt("ID");
-				nombre = resultado.getString("Nombre");
-				tipo = Investigacion.TiposInvestigacion.values()[id];
+				nombre = resultado.getString("Nombre");				
 				nivelActual = resultado.getInt("Nivel");
 				maxNivel = resultado.getInt("MaxNivel");
 
@@ -136,9 +133,9 @@ class _interfaz_investigacion {
 
     public static int guardaInvestigacionJugador(Investigacion.TiposInvestigacion tipo, int nivel, long jugador, boolean pendiente)
     {
-        String sql = "SELECT COUNT(*) AS NumRegistros FROM Investigaciones_Usuarios WHERE ID_Usuario = " + jugador + " AND ID_Investigacion = " + (int)tipo;
+        String sql = "SELECT COUNT(*) AS NumRegistros FROM Investigaciones_Usuarios WHERE ID_Usuario = " + jugador + " AND ID_Investigacion = " + tipo.ordinal();
         ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);
-        Long numRegistros = 0;
+        Long numRegistros = 0L;
         try {
 			while(resultado.next()) {
 				numRegistros = resultado.getLong(0);
@@ -149,24 +146,27 @@ class _interfaz_investigacion {
     	}
         
         if (numRegistros==0)
-            sql = "INSERT INTO Investigaciones_Usuarios (ID_Usuario,ID_Investigacion,Nivel, Pendiente) VALUES (" + jugador + "," + (int)tipo + "," + nivel + ",'N')";
+            sql = "INSERT INTO Investigaciones_Usuarios (ID_Usuario,ID_Investigacion,Nivel, Pendiente) VALUES (" + jugador + "," + tipo.ordinal() + "," + nivel + ",'N')";
         else
-            sql = "UPDATE Investigaciones_Usuarios SET Nivel = " + nivel + " WHERE ID_Usuario = " + jugador + " AND ID_Investigacion = " + (int)tipo;
-        int filas = Mapa.conexion.ejecuta(sql);
+            sql = "UPDATE Investigaciones_Usuarios SET Nivel = " + nivel + " WHERE ID_Usuario = " + jugador + " AND ID_Investigacion = " + tipo.ordinal();
+        int filas = Jdbc.ejecuta(Mapa.conexion, sql);
         if (filas == -1) return -1; //Aqui mejor lanzar una excepcion
         return 0;
     }
 
-    public static bool estaInvestigada(Investigacion.TiposInvestigacion tipo, int nivel, long idJugador) {
-        string sql = "SELECT COUNT(*) AS NumRegistros FROM Investigaciones_Usuarios WHERE ID_Usuario = " + idJugador + " AND ID_Investigacion = " + (int)tipo + " AND Nivel = " + nivel;
-        DataTable dt;
-        dt = Mapa.conexion.consulta(sql);
-        Int64 numRegistros = 0;
-        foreach (DataRow row in dt.Rows)
-        {
-            numRegistros = row.Field<Int64>("NumRegistros");
-        }
-
+    public static boolean estaInvestigada(Investigacion.TiposInvestigacion tipo, int nivel, long idJugador) {
+        String sql = "SELECT COUNT(*) AS NumRegistros FROM Investigaciones_Usuarios WHERE ID_Usuario = " + idJugador + " AND ID_Investigacion = " + tipo.ordinal() + " AND Nivel = " + nivel;
+        ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);
+        Long numRegistros = 0L;
+        try {
+			while(resultado.next()) {
+				numRegistros = resultado.getLong(0);
+				
+			}
+        } catch (SQLException e) {
+    			e.printStackTrace();
+    	}
+        
         return (numRegistros>0);
     }
 }

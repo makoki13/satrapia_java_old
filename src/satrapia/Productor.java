@@ -204,6 +204,9 @@ public class Productor {
         //Primero se determina segun su potencial cuanto va a extraer cada vez. Entonces se genera una tarea. Cuando se cumpla la tarea se asignara la cantidad de recurso al recurso del Productor.
         //Si no está lleno se vuelve a empezar. Si está lleno se paraliza la extracción y se envía un correo.
     }
+    
+    public static ArrayList<Productor> getListaProductoresJugadorTipo(long jugador, int tipo) { return _interfaz_Productor.getListaProductoresJugadorTipo(jugador, tipo);}
+    public static ArrayList<Productor> getListaProductoresJugador(long jugador) { return _interfaz_Productor.getListaProductoresJugador(jugador);}
             
     public void ejecuta(int accion, ArrayList<String> parametros) { }
 }
@@ -667,6 +670,7 @@ public class Productor {
     	    		// 	TODO Auto-generated catch block
     	    			e.printStackTrace();
     	    		}
+    				resultado.close();
     			}
     		} catch (SQLException e) {
     		// 	TODO Auto-generated catch block

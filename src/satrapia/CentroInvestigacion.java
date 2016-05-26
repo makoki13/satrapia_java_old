@@ -1,5 +1,8 @@
 package satrapia;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 public class CentroInvestigacion {
 	private Jugador jugador;
 
@@ -13,16 +16,16 @@ public class CentroInvestigacion {
 
     public Investigacion getInvestigacion(Investigacion.TiposInvestigacion tipo)
     {
-        int index = investigaciones.FindIndex(
-        delegate (Investigacion miInvestigacion)
-        {
-            return (miInvestigacion.getTipo() == tipo);
-        });
-
-        return investigaciones.ElementAt(index);
+    	Investigacion r;
+    	Iterator<Investigacion> recursosIterator = investigaciones.iterator();    	
+		while (recursosIterator.hasNext()) {
+			r=recursosIterator.next();
+			if (r.getTipo()==tipo) return r;			
+		}
+		throw new NullPointerException();    	
     }
 
-    public bool sePuedeComprarSiguienteNivel(Investigacion.TiposInvestigacion tipo)
+    public boolean sePuedeComprarSiguienteNivel(Investigacion.TiposInvestigacion tipo)
     {
         //Primero: Hay siguiente nivel;
         Investigacion v = this.getInvestigacion(tipo);
@@ -34,11 +37,11 @@ public class CentroInvestigacion {
         //Hay que determinar una manera de obtener los recursos que tenemos en Palacio -> Recursos naturales: Almacenes, Recursos artificiales y Oro: Palacio, Dinero: Banco.
         Poblacion capital = this.jugador.dirigente.capital;
         int celda = capital.idCelda();
-
-        List<Recurso> listaRecursos = v.costeDeNivelSiguiente();
-        foreach(Recurso r in listaRecursos)
+        
+        ArrayList<Recurso> listaRecursos = v.costeDeNivelSiguiente();
+        for(Recurso r : listaRecursos)
         {
-            Recurso.TiposRecurso t = r.tipo;
+            Recurso.TiposRecurso t = r._get_Tipo();
             switch(t)
             {
                 //En Banco
@@ -58,17 +61,17 @@ public class CentroInvestigacion {
                     {
                         Productor p = new Productor(this.jugador.getID(), celda, Productor.TiposProductor.ALMACEN);
                         long tenemos = p.stock(t);
-                        if (r.cantidad > tenemos) return false; //Ya hemos terminado... No hay recurso... Habría que saber que recursos...
+                        if (r._get_Cantidad() > tenemos) return false; //Ya hemos terminado... No hay recurso... Habría que saber que recursos...
                         break;
                     }
 
                 //En Palacio
-                case Recurso.TiposRecurso.ORO:
+                case ORO:
                 default:
                     {
                         Productor p = new Productor(this.jugador.getID(), celda, Productor.TiposProductor.CASTILLO);
                         long tenemos = p.stock(t);
-                        if (r.cantidad > tenemos) return false; //Ya hemos terminado... No hay recurso... Habría que saber que recursos...
+                        if (r._get_Cantidad() > tenemos) return false; //Ya hemos terminado... No hay recurso... Habría que saber que recursos...
                         break;
                     }
             }
@@ -84,10 +87,10 @@ public class CentroInvestigacion {
 
         Investigacion v = this.getInvestigacion(tipo);
 
-        List<Recurso> listaRecursos = v.costeDeNivelSiguiente();
-        foreach (Recurso r in listaRecursos)
+        ArrayList<Recurso> listaRecursos = v.costeDeNivelSiguiente();
+        for (Recurso r : listaRecursos)
         {
-            Recurso.TiposRecurso t = r.tipo;
+            Recurso.TiposRecurso t = r._get_Tipo();
             switch (t)
             {
                 //En Banco
@@ -95,8 +98,8 @@ public class CentroInvestigacion {
                     {
                         Productor p = new Productor(this.jugador.getID(), celda, Productor.TiposProductor.BANCO);
                         long dinero = p.stock(Recurso.TiposRecurso.DINERO);
-                        if (r.cantidad > dinero) return -1; //Ya hemos terminado... No hay pasta.
-                        p.saca(Recurso.TiposRecurso.DINERO, r.cantidad);
+                        if (r._get_Cantidad() > dinero) return -1; //Ya hemos terminado... No hay pasta.
+                        p.saca(Recurso.TiposRecurso.DINERO, r._get_Cantidad());
                         break;
                     }
 
@@ -108,8 +111,8 @@ public class CentroInvestigacion {
                     {
                         Productor p = new Productor(this.jugador.getID(), celda, Productor.TiposProductor.ALMACEN);
                         long tenemos = p.stock(t);
-                        if (r.cantidad > tenemos) return -2; //Ya hemos terminado... No hay recurso... Habría que saber que recursos...
-                        p.saca(t, r.cantidad);
+                        if (r._get_Cantidad() > tenemos) return -2; //Ya hemos terminado... No hay recurso... Habría que saber que recursos...
+                        p.saca(t, r._get_Cantidad());
                         break;
                     }
 
@@ -119,8 +122,8 @@ public class CentroInvestigacion {
                     {
                         Productor p = this.jugador.dirigente.palacio;
                         long tenemos = p.stock(t);
-                        if (r.cantidad > tenemos) return -3; //Ya hemos terminado... No hay recurso... Habría que saber que recursos...
-                        p.saca(t, r.cantidad);
+                        if (r._get_Cantidad() > tenemos) return -3; //Ya hemos terminado... No hay recurso... Habría que saber que recursos...
+                        p.saca(t, r._get_Cantidad());
                         break;
                     }
             }
@@ -134,12 +137,12 @@ public class CentroInvestigacion {
 
     public int nivelActual (Investigacion inv)
     {
-        return inv.nivelActual;
+        return inv._get_NivelActual();
     }
 
     public int ultimoNivel(Investigacion inv)
     {
-        return inv.maxNivel;
+        return inv._get_MaxNivel();
     }
 
     public int mejora (Productor prod, Potencial pot)
@@ -147,5 +150,5 @@ public class CentroInvestigacion {
         return 0;
     }
 
-    public List<Investigacion> getLista() { return this.investigaciones; }
+    public ArrayList<Investigacion> getLista() { return this.investigaciones; }
 }
