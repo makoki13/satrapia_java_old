@@ -1,5 +1,7 @@
 package satrapia;
 
+import java.util.ArrayList;
+
 public class Dirigente {
     public enum TiposDirigente {EMPERADOR, SATRAPA, JEFE};
     
@@ -11,71 +13,38 @@ public class Dirigente {
 
     private Jugador jugador;
 
-    private Poblacion _capital;
-    public Poblacion capital
-    {
-        get
-        {
-            return _capital;
-        }
-        set
-        {
-            _capital = value;
-        }
-    }
-
+    private Poblacion capital;
+    public void _set_Capital(Poblacion valor) {capital=valor;}
+    public Poblacion _get_Capital() {return capital;}
+    
     //public Poblacion getCapital() { return this.capital; }
 
-    private Palacio _palacio;        
-    public Palacio palacio
-    {
-        get
-        {
-            return _palacio;
-        }
-        set
-        {
-            _palacio = value;
-        }
-    }
-    private Gobierno _gobierno;
-    public Gobierno gobierno
-    {
-        get
-        {
-            return _gobierno;
-        }
-        set
-        {
-            _gobierno = value;
-        }
-    }
-    private Almacen _almacen;
-    public Almacen almacen
-    {
-        get
-        {
-            return _almacen;
-        }
-        set
-        {
-            _almacen = value;
-        }
-    }
+    private Palacio palacio;
+    public void _set_Palacio(Palacio valor) {palacio=valor;}
+    public Palacio _get_Palacio() {return palacio;}
+
+    private Gobierno gobierno;
+    public void _set_Gobierno(Gobierno valor) {gobierno=valor;}
+    public Gobierno _get_Gobierno() {return gobierno;}
+    
+    private Almacen almacen;
+    public void _set_Almacen(Almacen valor) {almacen=valor;}
+    public Almacen _get_Almacen() {return almacen;}
+    
     private Academia academia;
     private Cuartel cuartel;
     private CentroInteligencia centroInteligencia;
     private Banco banco;
     private Embajada embajada;
 
-    private List<Productor> listaProductores = new List<Productor>();
+    private ArrayList<Productor> listaProductores = new ArrayList<Productor>();
 
-    private List<Productor> listaGranjas = new List<Productor>();
-    private List<Productor> listaMinasOro = new List<Productor>();
-    private List<Productor> listaMinasHierro = new List<Productor>();
-    private List<Productor> listaCanteras = new List<Productor>();
-    private List<Productor> listaSerrerias = new List<Productor>();
-    private List<Productor> listaEjercitos = new List<Productor>();
+    private ArrayList<Productor> listaGranjas = new ArrayList<Productor>();
+    private ArrayList<Productor> listaMinasOro = new ArrayList<Productor>();
+    private ArrayList<Productor> listaMinasHierro = new ArrayList<Productor>();
+    private ArrayList<Productor> listaCanteras = new ArrayList<Productor>();
+    private ArrayList<Productor> listaSerrerias = new ArrayList<Productor>();
+    private ArrayList<Productor> listaEjercitos = new ArrayList<Productor>();
 
     public CentroInvestigacion centroInvestigacion;
                     
@@ -345,25 +314,24 @@ public class Dirigente {
     }
 }
 
-public class Emperador : Dirigente
+class Emperador extends Dirigente
 {
-    public Emperador(Jugador id) : base(id)
+    public Emperador(Jugador id)
     {
-        
+    	super(id);
     }
 
     //Operaciones que pueden realizar los emperadores
     public void pideRecursosSatrapa(Recurso r, Satrapa s, long cantidad) { }
 }
 
-public class Satrapa : Dirigente
+class Satrapa extends Dirigente
 {
-    public Satrapa(Jugador id) : base(id)
+    public Satrapa(Jugador id)
     {
-
+    	super(id);
     }
 
     //Operaciones que pueden realizar los sátrapas
     public void mueveEjercito(Ejercito ejercito, Posicion pos) { }
-}
 }
