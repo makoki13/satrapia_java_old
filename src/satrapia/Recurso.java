@@ -20,7 +20,7 @@ public class Recurso {
             case PIEDRA: return "PIEDRA";
             case DINERO: return "DINERO";
             case EJERCITO: return "EJERCITO";
-            case TRABAJADORES: return "TRABAJADOREs";
+            case TRABAJADORES: return "TRABAJADORES";
             case ARQUEROS: return "ARQUEROS";
             case INFANTERIA: return "INFANTERIA";
             case CABALLERIA: return "CABALLERIA";
