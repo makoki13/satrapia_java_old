@@ -35,7 +35,7 @@ public class CentroInvestigacion {
 
         //Segundo: Tenemos los recursos necesarios
         //Hay que determinar una manera de obtener los recursos que tenemos en Palacio -> Recursos naturales: Almacenes, Recursos artificiales y Oro: Palacio, Dinero: Banco.
-        Poblacion capital = this.jugador.dirigente.capital;
+        Poblacion capital = this.jugador.dirigente._get_Capital();
         int celda = capital.idCelda();
         
         ArrayList<Recurso> listaRecursos = v.costeDeNivelSiguiente();
@@ -82,7 +82,7 @@ public class CentroInvestigacion {
 
     public int compraSiguienteNivelInvestigacion(Investigacion.TiposInvestigacion tipo)
     {
-        Poblacion capital = this.jugador.dirigente.capital;
+        Poblacion capital = this.jugador.dirigente._get_Capital();
         int celda = capital.idCelda();
 
         Investigacion v = this.getInvestigacion(tipo);
@@ -120,7 +120,7 @@ public class CentroInvestigacion {
                 case ORO:
                 default:
                     {
-                        Productor p = this.jugador.dirigente.palacio;
+                        Productor p = this.jugador.dirigente._get_Palacio();
                         long tenemos = p.stock(t);
                         if (r._get_Cantidad() > tenemos) return -3; //Ya hemos terminado... No hay recurso... Habría que saber que recursos...
                         p.saca(t, r._get_Cantidad());

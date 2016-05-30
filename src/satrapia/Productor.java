@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import postgresql.Jdbc;
-import satrapia.Jugador.TiposJugador;
-import satrapia.Recurso.TiposRecurso;
 
 public class Productor {
 	public enum TiposProductor {
@@ -555,7 +553,7 @@ public class Productor {
             ArrayList<Productor> lista = j.dirigente.getListaProductores(Productor.TiposProductor.EJERCITO);
             if (lista.size() == 0)
             {
-                Poblacion capital = j.dirigente.capital;
+                Poblacion capital = j.dirigente._get_Capital();
                 int celda = capital.idCelda();
                 miEjercito = new Ejercito(Productor.TiposProductor.EJERCITO, celda, j.getID(), 1);
             }
@@ -658,11 +656,11 @@ public class Productor {
     				p.recursos  = new ArrayList<Recurso>();
     				
     				sql = " select id from Recursos where id_Productor = " + id;
-    				resultado = Jdbc.consulta(Mapa.conexion, sql);
+    				ResultSet resultado2 = Jdbc.consulta(Mapa.conexion, sql);
     				long idRecurso;
     				try {
-    	    			while(resultado.next()) {
-    	    				 idRecurso = resultado.getLong("Jugador");
+    	    			while(resultado2.next()) {
+    	    				 idRecurso = resultado2.getLong("Jugador");
     	                     Recurso r = new Recurso(idRecurso);
     	                     p.recursos.add(r);
     	    			}
@@ -670,12 +668,13 @@ public class Productor {
     	    		// 	TODO Auto-generated catch block
     	    			e.printStackTrace();
     	    		}
-    				resultado.close();
+    				resultado2.close();
     			}
+    			resultado.close();
     		} catch (SQLException e) {
     		// 	TODO Auto-generated catch block
     			e.printStackTrace();
-    		}		            
+    		}
     		
     		return p;
     	}

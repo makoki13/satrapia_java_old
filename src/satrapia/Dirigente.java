@@ -1,15 +1,27 @@
 package satrapia;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+
+import postgresql.Jdbc;
 
 public class Dirigente {
     public enum TiposDirigente {EMPERADOR, SATRAPA, JEFE};
     
     private TiposDirigente tipo;
+    public long getTipoDirigente() {return tipo.ordinal();}
 
     private long ID;
+    public long getID() {return ID;}
 
     private long region;
+    public long getRegion() {return region;}
 
     private Jugador jugador;
 
@@ -54,11 +66,11 @@ public class Dirigente {
 
         this.jugador = jugador;
         dirigente = _interfaz_Dirigente.loadDirigente(jugador.getID());
-        this.tipo = (TiposDirigente)dirigente.tipo;
+        tipo = TiposDirigente.values()[dirigente.tipo];
         this.ID = dirigente.id;
         this.region = dirigente.region;
-        this.capital = new Poblacion(jugador);
-        this.listaProductores = Productor.getListaProductoresJugador(jugador.getID());
+        capital = new Poblacion(jugador);
+        listaProductores = Productor.getListaProductoresJugador(jugador.getID());
         for(Productor p : this.listaProductores)
         {
             switch (p.getTipo())
@@ -113,15 +125,15 @@ public class Dirigente {
         }
     }
 
-    private Productor getProductor(List<Productor> p, long id)
+    private Productor getProductor(ArrayList<Productor> p, long id)
     {
-        int index = p.FindIndex(
-        delegate (Productor miProductor)
-        {
-            return (miProductor.getID() == id);
-        });
-
-        return p.ElementAt(index);
+    	Productor r;
+    	Iterator<Productor> productoresIterator = listaProductores.iterator();    	
+		while (productoresIterator.hasNext()) {
+			r=productoresIterator.next();
+			if (r.ID==id) return r;			
+		}
+		throw new NullPointerException();		
     }
 
     //Operaciones que puede realizar cualquier dirigente
@@ -132,10 +144,12 @@ public class Dirigente {
         Celda c = Mapa.getCelda(pos);
         MinaOro p = new MinaOro(Productor.TiposProductor.MINA_ORO, c.getID(), this.jugador.getID(), nivel);
         p.addRecurso(Recurso.TiposRecurso.ORO);
-        this.listaMinasOro.Add(p);
+        this.listaMinasOro.add(p);
         double duracion = 0;
-        DateTime fin = DateTime.Now.AddMinutes(duracion);
-        Evento e = new Evento(p.getJugador(), (long)duracion, fin, p.getID(), _Productor_rutinas.EXTRAE, "");
+        
+        LocalDateTime fin = LocalDateTime.now().plusMinutes((long) duracion);
+        Instant instant = fin.atZone(ZoneId.systemDefault()).toInstant();
+        new Evento(p.getJugador(), (long)duracion, Date.from(instant), p.getID(), _Productor_rutinas.EXTRAE, "");
     }
 
     public int creaBanco(Posicion pos, int nivel)
@@ -155,10 +169,11 @@ public class Dirigente {
         Celda c = Mapa.getCelda(pos);
         Granja p = new Granja(Productor.TiposProductor.GRANJA, c.getID(), this.jugador.getID(), nivel);
         p.addRecurso(Recurso.TiposRecurso.COMIDA);
-        this.listaGranjas.Add(p);
+        this.listaGranjas.add(p);
         double duracion = 0;
-        DateTime fin = DateTime.Now.AddMinutes(duracion);
-        Evento e = new Evento(p.getJugador(), (long)duracion, fin, p.getID(), _Productor_rutinas.EXTRAE, "");
+        LocalDateTime fin = LocalDateTime.now().plusMinutes((long) duracion);
+        Instant instant = fin.atZone(ZoneId.systemDefault()).toInstant();
+        new Evento(p.getJugador(), (long)duracion, Date.from(instant), p.getID(), _Productor_rutinas.EXTRAE, "");
     }
 
     public void creaMinaDeHierro(Posicion pos, int nivel)
@@ -166,10 +181,11 @@ public class Dirigente {
         Celda c = Mapa.getCelda(pos);
         MinaHierro p = new MinaHierro(Productor.TiposProductor.MINA_HIERRO, c.getID(), this.jugador.getID(), nivel);
         p.addRecurso(Recurso.TiposRecurso.HIERRO);
-        this.listaMinasHierro.Add(p);
+        this.listaMinasHierro.add(p);
         double duracion = 0;
-        DateTime fin = DateTime.Now.AddMinutes(duracion);
-        Evento e = new Evento(p.getJugador(), (long)duracion, fin, p.getID(), _Productor_rutinas.EXTRAE, "");
+        LocalDateTime fin = LocalDateTime.now().plusMinutes((long) duracion);
+        Instant instant = fin.atZone(ZoneId.systemDefault()).toInstant();
+        new Evento(p.getJugador(), (long)duracion, Date.from(instant), p.getID(), _Productor_rutinas.EXTRAE, "");
     }
 
     public void creaSerreria(Posicion pos, int nivel)
@@ -177,10 +193,11 @@ public class Dirigente {
         Celda c = Mapa.getCelda(pos);
         Serreria p = new Serreria(Productor.TiposProductor.SERRERIA, c.getID(), this.jugador.getID(), nivel);
         p.addRecurso(Recurso.TiposRecurso.MADERA);
-        this.listaSerrerias.Add(p);
+        this.listaSerrerias.add(p);
         double duracion = 0;
-        DateTime fin = DateTime.Now.AddMinutes(duracion);
-        Evento e = new Evento(p.getJugador(), (long)duracion, fin, p.getID(), _Productor_rutinas.EXTRAE, "");
+        LocalDateTime fin = LocalDateTime.now().plusMinutes((long) duracion);
+        Instant instant = fin.atZone(ZoneId.systemDefault()).toInstant();
+        new Evento(p.getJugador(), (long)duracion, Date.from(instant), p.getID(), _Productor_rutinas.EXTRAE, "");
     }
 
     public void creaCantera(Posicion pos, int nivel)
@@ -188,10 +205,11 @@ public class Dirigente {
         Celda c = Mapa.getCelda(pos);
         Cantera p = new Cantera(Productor.TiposProductor.CANTERA, c.getID(), this.jugador.getID(), nivel);
         p.addRecurso(Recurso.TiposRecurso.PIEDRA);
-        this.listaCanteras.Add(p);
+        this.listaCanteras.add(p);
         double duracion = 0;
-        DateTime fin = DateTime.Now.AddMinutes(duracion);
-        Evento e = new Evento(p.getJugador(), (long)duracion, fin, p.getID(), _Productor_rutinas.EXTRAE, "");
+        LocalDateTime fin = LocalDateTime.now().plusMinutes((long) duracion);
+        Instant instant = fin.atZone(ZoneId.systemDefault()).toInstant();
+        new Evento(p.getJugador(), (long)duracion, Date.from(instant), p.getID(), _Productor_rutinas.EXTRAE, "");
     }
 
     public int creaAcademia(Posicion pos, int nivel)
@@ -240,7 +258,7 @@ public class Dirigente {
 
     }
 
-    public bool compraInvestigacion(Investigacion.TiposInvestigacion tipo)
+    public boolean compraInvestigacion(Investigacion.TiposInvestigacion tipo)
     {            
         if (this.centroInvestigacion.sePuedeComprarSiguienteNivel(tipo) == false) return false; //Aquí habría que avisar de porque no.            
         this.centroInvestigacion.compraSiguienteNivelInvestigacion(tipo);
@@ -253,8 +271,8 @@ public class Dirigente {
 
         if (idMina==-1) //transfiere desde todas
         {
-            List<Productor> lista = this.listaMinasOro;
-            foreach (Productor p in lista)
+            ArrayList<Productor> lista = this.listaMinasOro;
+            for (Productor p : lista)
             {
                 cantidadOroAcumulada += p.saca(Recurso.TiposRecurso.ORO, p.stock(Recurso.TiposRecurso.ORO));
             }
@@ -269,41 +287,40 @@ public class Dirigente {
     }
 
 
-    static private Recurso getRecurso(Satrapia.Recurso.TiposRecurso tipo, List<Recurso> lista)
+    static private Recurso getRecurso(Recurso.TiposRecurso tipo, ArrayList<Recurso> lista)
     {
-        int index = lista.FindIndex(
-        delegate (Satrapia.Recurso miRecurso)
-        {
-            return (miRecurso.tipo == tipo);
-        });
-
-        if (index == -1) return null;
-        return lista.ElementAt(index);
+    	Recurso r;
+    	Iterator<Recurso> recursosIterator = lista.iterator();    	
+		while (recursosIterator.hasNext()) {
+			r=recursosIterator.next();
+			if (r._get_Tipo()==tipo) return r;			
+		}
+		throw new NullPointerException();		
     }
 
-    public List<Recurso> getRiqueza()
+    public ArrayList<Recurso> getRiqueza()
     {
-        List<Satrapia.Recurso> totales = new List<Satrapia.Recurso>();
-        Satrapia.Recurso elemTotales;
+        ArrayList<Recurso> totales = new ArrayList<Recurso>();
+        Recurso elemTotales;
 
-        if (this.listaProductores != null)
+        if (listaProductores != null)
         {
-            foreach (Satrapia.Productor prod in this.listaProductores)
+            for (Productor prod : listaProductores)
             {
-                List<Satrapia.Recurso> recursos = prod.getRecursos();
-                if (recursos.Count > 0)
+                ArrayList<Recurso> recursos = prod.getRecursos();
+                if (recursos.size() > 0)
                 {
-                    foreach (Satrapia.Recurso rec in recursos)
+                    for(Recurso rec : recursos)
                     {
-                        elemTotales = getRecurso(rec.tipo, totales);
+                        elemTotales = getRecurso(rec._get_Tipo(), totales);
                         if (elemTotales == null)
                         {
-                            Satrapia.Recurso r = new Satrapia.Recurso(rec.id());
-                            totales.Add(r);
+                            Recurso r = new Recurso(rec.id());
+                            totales.add(r);
                         }
                         else
                         {
-                            elemTotales.addCantidad(rec.cantidad);
+                            elemTotales.addCantidad(rec._get_Cantidad());
                         }
                     }
                 }
@@ -334,4 +351,35 @@ class Satrapa extends Dirigente
 
     //Operaciones que pueden realizar los sátrapas
     public void mueveEjercito(Ejercito ejercito, Posicion pos) { }
+}
+
+class _interfaz_Dirigente
+{
+    static class __dirigente
+    {
+        public long id;                        
+        public String nombre;
+        public int tipo;
+        public long region;
+    }
+
+    public static __dirigente loadDirigente(long jugador)
+    {
+        __dirigente d = new __dirigente();
+
+        String sql = "SELECT ID,Nombre,Tipo,Region FROM Dirigente WHERE Jugador=" + jugador;
+        ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);
+		try {
+			while(resultado.next()) {
+				d.id = resultado.getInt("ID");
+				d.nombre = resultado.getString("Nombre");
+				d.tipo = resultado.getInt("Tipo");
+				d.region = resultado.getLong("Region");								
+			}
+		} catch (SQLException e) {
+		// 	TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		return d;		
+    }
 }

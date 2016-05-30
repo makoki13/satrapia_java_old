@@ -2,8 +2,10 @@ package satrapia;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalTime;
-
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import postgresql.Jdbc;
 
 public class Jugador {
@@ -40,26 +42,26 @@ public class Jugador {
     private EstadosJugador estado;
     private long region_ID;
             
-    //public Dirigente dirigente; ***TODO
+    public Dirigente dirigente;
             
     public Jugador(long id)
     {
         this.ID = id;
 
-        //_interfaz_Jugador.__usuario misDatosUsuario = _interfaz_Jugador.datosUsuario(Mapa.conexion, id); ***TODO
-        //this.nombre = misDatosUsuario.nombre; ***TODO
-        //this.tipo = (TiposJugador)misDatosUsuario.tipo; ***TODO
+        _interfaz_Jugador.__usuario misDatosUsuario = _interfaz_Jugador.datosUsuario(id);
+        this.nombre = misDatosUsuario.nombre;
+        this.tipo = TiposJugador.values()[misDatosUsuario.tipo];
         this.estado = EstadosJugador.DESCONECTADO;
-        //this.region_ID = misDatosUsuario.region; ***TODO
-        //this.dirigente = new Dirigente(this); ***TODO
-        //this._nivelTutorial = misDatosUsuario.nivelTutorial; ***TODO            
+        this.region_ID = misDatosUsuario.region;
+        this.dirigente = new Dirigente(this);
+        this.nivelTutorial = misDatosUsuario.nivelTutorial;            
     }
            
     public String getTipo() { return this.tipo.toString(); } // Ejemplo de conversión de tipo enum -> string
     public void setTipo(String tipo) {
         //this.tipo = (TiposJugador)Enum.Parse(typeof(TiposJugador), tipo, true); // Ejemplo de conversión de tipo string -> enum
     	this.tipo = TiposJugador.getElemento(tipo); // Ejemplo de conversión de tipo string -> enum
-        //_interfaz_Jugador.setTipo(Mapa.conexion, this.ID, (int)this.tipo); ***TODO
+        _interfaz_Jugador.setTipo(this.ID, this.tipo.ordinal());
     }
 
     public long getID() { return this.ID; }
@@ -88,25 +90,26 @@ public class Jugador {
         Recurso r = new Recurso(Recurso.TiposRecurso.TRABAJADORES,1000000,c.getID(),Recurso.TiposReceptor.CELDA);            
         c.addRecurso(r);
 
-        //this.dirigente.palacio = new Palacio(Productor.TiposProductor.CASTILLO, c.getID(), this.ID, 1); ***TODO
-        //this.dirigente.palacio.addRecurso(Recurso.TiposRecurso.TRABAJADORES); ***TODO
-        //this.dirigente.palacio.addRecurso(Recurso.TiposRecurso.ORO); ***TODO
+        this.dirigente._set_Palacio(new Palacio(Productor.TiposProductor.CASTILLO, c.getID(), this.ID, 1));
+        this.dirigente._get_Palacio().addRecurso(Recurso.TiposRecurso.TRABAJADORES);
+        this.dirigente._get_Palacio().addRecurso(Recurso.TiposRecurso.ORO);
         
-        //this.dirigente.gobierno = new Gobierno(Productor.TiposProductor.GOBIERNO, c.getID(), this.ID, 1); ***TODO
+        this.dirigente._set_Gobierno(new Gobierno(Productor.TiposProductor.GOBIERNO, c.getID(), this.ID, 1));
 
         long duracion = 600; //10 horas        
-        LocalTime fin = LocalTime.now().plusMinutes(duracion);        
-        //Evento e = new Evento(this.dirigente.palacio.getJugador(), (long)duracion, fin, this.dirigente.palacio.getID(), _Productor_rutinas.AUMENTA, ""); ***TODO
+        LocalDateTime fin = LocalDateTime.now().plusMinutes((long) duracion);
+        Instant instant = fin.atZone(ZoneId.systemDefault()).toInstant();
+        new Evento(this.dirigente._get_Palacio().getJugador(), (long)duracion, Date.from(instant), this.dirigente._get_Palacio().getID(), _Productor_rutinas.AUMENTA, "");
 
         //Creamos Almacen...        
-        //this.dirigente.almacen = new Almacen(Productor.TiposProductor.ALMACEN, c.getID(), this.ID, 1); ***TODO
-        //this.dirigente.almacen.addRecurso(Recurso.TiposRecurso.COMIDA); ***TODO
-        //this.dirigente.almacen.addRecurso(Recurso.TiposRecurso.HIERRO); ***TODO
-        //this.dirigente.almacen.addRecurso(Recurso.TiposRecurso.MADERA); ***TODO
-        //this.dirigente.almacen.addRecurso(Recurso.TiposRecurso.PIEDRA); ***TODO
+        this.dirigente._set_Almacen(new Almacen(Productor.TiposProductor.ALMACEN, c.getID(), this.ID, 1));
+        this.dirigente._get_Almacen().addRecurso(Recurso.TiposRecurso.COMIDA);
+        this.dirigente._get_Almacen().addRecurso(Recurso.TiposRecurso.HIERRO);
+        this.dirigente._get_Almacen().addRecurso(Recurso.TiposRecurso.MADERA);
+        this.dirigente._get_Almacen().addRecurso(Recurso.TiposRecurso.PIEDRA);
 
         //Creamos la poblacion
-        //this.dirigente.capital = new Poblacion(this, Poblacion.TiposPoblacion.CAPITAL, c.getID());  ***TODO         
+        this.dirigente._set_Capital(new Poblacion(this, Poblacion.TiposPoblacion.CAPITAL, c.getID()));         
     }
 }
 
