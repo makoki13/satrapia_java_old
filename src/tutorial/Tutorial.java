@@ -1,14 +1,20 @@
 package tutorial;
 
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 public class Tutorial extends JFrame {
 	/**
@@ -22,20 +28,53 @@ public class Tutorial extends JFrame {
     }
 	
 	private void createLayout(JComponent... arg) {
-
-        Container pane = getContentPane();
-        GroupLayout gl = new GroupLayout(pane);
-        pane.setLayout(gl);
-
+                
+        JPanel panelMain = new JPanel();
+        panelMain.setBorder(BorderFactory.createTitledBorder("Entrada"));
+        
+        GridLayout gl = new GridLayout(3,1);
+        panelMain.setLayout(gl);
+        
+        JPanel panelSuperior = new JPanel();panelSuperior.setBorder(BorderFactory.createBevelBorder(1));
+        panelSuperior.add(arg[0]);        
+        
+        JPanel panelMedio = new JPanel();panelMedio.setBorder(BorderFactory.createBevelBorder(1));
+        panelMedio.add(arg[1]);
+        
+        JPanel panelInferior = new JPanel();panelInferior.setBorder(BorderFactory.createBevelBorder(1));
+        panelInferior.add(arg[2]);
+                
+        panelMain.add(panelSuperior);
+        panelMain.add(panelMedio);
+        panelMain.add(panelInferior);
+        
+        this.setContentPane(panelMain);
+        
+        //this.add(arg[0]);
+        //this.add(arg[1]);
+        //this.add(arg[2]);
+        
+        
+        /*
         gl.setAutoCreateContainerGaps(true);
+        gl.setAutoCreateGaps(true);
 
-        gl.setHorizontalGroup(gl.createSequentialGroup()
-                .addComponent(arg[0])
+        gl.setHorizontalGroup(gl.createParallelGroup()
+                
+                .addGroup(gl.createSequentialGroup()
+                		.addComponent(arg[1])
+                		.addComponent(arg[2])
+                		)
         );
 
         gl.setVerticalGroup(gl.createSequentialGroup()
-                .addComponent(arg[0])
+        		.addComponent(arg[0])
+        		.addGroup(gl.createParallelGroup()        				
+                        .addComponent(arg[1])
+                        .addComponent(arg[2])
+                        		)
         );
+        */
     }
 
     private void initUI() {
@@ -45,7 +84,10 @@ public class Tutorial extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         
-        JButton quitButton = new JButton("Quit");
+        JButton quitButton = new JButton("SALIR");
+        JLabel label = new JLabel("SATRAPÍA");
+        JTextField textField = new JTextField(20);
+        label.setLabelFor(textField);
 
         quitButton.addActionListener(new ActionListener() {
             @Override
@@ -54,7 +96,7 @@ public class Tutorial extends JFrame {
             }
         });
 
-        createLayout(quitButton);
+        createLayout(label,textField,quitButton);
     }
 
     public static void main(String[] args) {
