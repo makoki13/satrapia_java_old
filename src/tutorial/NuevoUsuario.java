@@ -2,14 +2,10 @@ package tutorial;
 
 import java.awt.CardLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,36 +16,68 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 
-public class Tutorial extends JFrame {
+public class NuevoUsuario extends JPanel {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	JPanel panelPrincipal;
-	JTextField textFieldPass, textFieldLogin;
+
+	JTextField textFieldPass, textFieldPass2, textFieldLogin;
 	JButton enterButton;
 	
-	boolean creadoNuevo = false;
-
-	public Tutorial() {
-
-        initUI();
-    }
+	CardLayout padre;
 	
-	private void createLayout(JComponent... arg) {                
-        panelPrincipal = new JPanel();
-        CardLayout cl = new CardLayout();
-        panelPrincipal.setLayout(cl);
-        
+	public NuevoUsuario(CardLayout p) {padre=p; initUI();} 
+	
+	Action enterEnLogin = new AbstractAction()
+	{
+	    /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
+	    public void actionPerformed(ActionEvent e)
+	    {
+	    	textFieldPass.requestFocus(); 
+	    }
+	};
+	
+	Action enterEnPass = new AbstractAction()
+	{
+	    /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
+	    public void actionPerformed(ActionEvent e)
+	    {
+	    	textFieldPass2.requestFocus(); 
+	    }
+	};
+	
+	Action enterEnPass2 = new AbstractAction()
+	{
+	    /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
+	    public void actionPerformed(ActionEvent e)
+	    {
+	    	enterButton.requestFocus(); 
+	    }
+	};
+	
+	private void createLayout(JComponent... arg) {        
         ImagePanel panelMain = new ImagePanel(new ImageIcon("imagenes/fondoMain.jpg").getImage());
         //panelMain.setPreferredSize(new Dimension(1024,800)); No funciona        
         panelMain.setBorder(BorderFactory.createTitledBorder(""));
@@ -104,12 +132,32 @@ public class Tutorial extends JFrame {
         restricciones.gridheight = 1; // El área de texto ocupa 2 filas.
         restricciones.weighty = 1; // La fila 0 debe estirarse, le ponemos un 1.0
         
+        
         restricciones.gridwidth = GridBagConstraints.REMAINDER;  // Fila final        
         gridBag.setConstraints(arg[6], restricciones);
         panelMedio.add(arg[6]);
         
         restricciones.gridx = 0; // El área de texto empieza en la columna cero.
         restricciones.gridy = 2; // El área de texto empieza en la fila cero
+        restricciones.gridwidth = 1; // El área de texto ocupa dos columnas.
+        restricciones.gridheight = 1; // El área de texto ocupa 2 filas.
+        restricciones.weighty = 1; // La fila 0 debe estirarse, le ponemos un 1.0
+        
+        gridBag.setConstraints(arg[7], restricciones);
+        panelMedio.add(arg[7]);
+        
+        restricciones.gridx = 2; // El área de texto empieza en la columna cero.
+        restricciones.gridy = 2; // El área de texto empieza en la fila cero
+        restricciones.gridwidth = 1; // El área de texto ocupa dos columnas.
+        restricciones.gridheight = 1; // El área de texto ocupa 2 filas.
+        restricciones.weighty = 1; // La fila 0 debe estirarse, le ponemos un 1.0
+       
+        restricciones.gridwidth = GridBagConstraints.REMAINDER;  // Fila final  
+        gridBag.setConstraints(arg[8], restricciones);
+        panelMedio.add(arg[8]);
+           
+        restricciones.gridx = 0; // El área de texto empieza en la columna cero.
+        restricciones.gridy = 3; // El área de texto empieza en la fila cero
         restricciones.gridwidth = 2; // El área de texto ocupa dos columnas.
         restricciones.gridheight = 1; // El área de texto ocupa 2 filas.
         restricciones.weighty = 1; // La fila 0 debe estirarse, le ponemos un 1.0
@@ -129,79 +177,39 @@ public class Tutorial extends JFrame {
         panelMain.add(panelMedio);
         panelMain.add(panelInferior);
         
-        panelPrincipal.add(panelMain);
+        this.add(panelMain);
+        
+        //panelPrincipal.add(panelMain);
         
         //this.setContentPane(panelMain);
         
-        this.setContentPane(panelPrincipal);
+        //this.setContentPane(panelPrincipal);
     }
 	
-	Action enterEnLogin = new AbstractAction()
-	{
-	    /**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
-		@Override
-	    public void actionPerformed(ActionEvent e)
-	    {
-	    	textFieldPass.requestFocus(); 
-	    }
-	};
-	
-	Action enterEnPass = new AbstractAction()
-	{
-	    /**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
-		@Override
-	    public void actionPerformed(ActionEvent e)
-	    {
-	    	enterButton.requestFocus(); 
-	    }
-	};
-	
-	private void verificaUsuario() {
-		String login;
-		String pass;
-		
-		login=textFieldLogin.getText();
-		pass=textFieldPass.getText();
-		if (Usuario.verificaLogin(login, pass)==true) {
-			CardLayout cl = (CardLayout)(panelPrincipal.getLayout());
-			if (creadoNuevo==false) {
-				NuevoUsuario panelNuevoUsuario = new NuevoUsuario(cl);
-				panelPrincipal.add(panelNuevoUsuario,"NUEVO");
-				creadoNuevo=true;
-			}
-		    cl.show(panelPrincipal, "NUEVO");
-			
-		}
-		else {
-			JOptionPane.showMessageDialog(null, "Usuario no existe");
-		}
+	public void anterior() {
+		padre.previous(this.getParent());
 	}
 
-    private void initUI() {
+	private void initUI() {
         
-        setTitle("Satrapía: El tutorial");
-        setSize(1024, 768);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        //setTitle("Satrapía: El tutorial");
+        //setSize(1024, 768);
+        //setLocationRelativeTo(null);
+        //setDefaultCloseOperation(EXIT_ON_CLOSE);
         
         Font f = new Font("Serif", Font.BOLD + Font.ITALIC, 72);
         JLabel label_titulo = new JLabel("SATRAPÍA");
         label_titulo.setFont(f);label_titulo.setForeground(new Color(244,45,77));
                 
-        JLabel label_login = new JLabel("USUARIO:");        
+        JLabel label_login = new JLabel("NUEVO USUARIO:");        
         f = new Font("Serif", Font.BOLD, 32);
         label_login.setFont(f);
         
         JLabel label_pass = new JLabel("CLAVE:");
         label_pass.setFont(f);
+       
+        JLabel label_pass2 = new JLabel("REPITA CLAVE:");
+        label_pass2.setFont(f);
                 
         f = new Font("Serif", Font.ITALIC, 24);
         
@@ -217,15 +225,21 @@ public class Tutorial extends JFrame {
         textFieldPass.addActionListener( enterEnPass );
         label_pass.setLabelFor(textFieldPass);
         
+        textFieldPass2 = new JTextField(20);
+        textFieldPass2.setFont(f);        
+        textFieldPass2.setBorder(BorderFactory.createCompoundBorder(textFieldPass2.getBorder(),BorderFactory.createEmptyBorder(0, 5, 5, 0)));
+        textFieldPass2.addActionListener( enterEnPass2 );
+        label_pass2.setLabelFor(textFieldPass2);
+        
         f = new Font("Courier", Font.BOLD, 24);
         
-        enterButton = new JButton("ENTRAR");
+        enterButton = new JButton("CREAR USUARIO");
         enterButton.setBackground(new Color(0,144,0));enterButton.setForeground(Color.WHITE);
         enterButton.setFont(f);
         enterButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-            	verificaUsuario();
+            	//verificaUsuario();
             }
         });
         enterButton.getInputMap().put(KeyStroke.getKeyStroke("pressed ENTER"),"enterEnEnter");
@@ -236,60 +250,21 @@ public class Tutorial extends JFrame {
 			private static final long serialVersionUID = 1L;
 
 			public void actionPerformed(ActionEvent evt) {
-				verificaUsuario();
+				//verificaUsuario();
             }
           });
         
-        JButton quitButton = new JButton("SALIR");
+        JButton quitButton = new JButton("ATRAS");
         quitButton.setFont(f);
         
         quitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                System.exit(0);
+            	//JOptionPane.showMessageDialog(null, "ATRAS");
+            	anterior();
             }
         });
 
-        createLayout(label_titulo,textFieldLogin,quitButton,label_login,label_pass,enterButton,textFieldPass);
-    }
-
-    public static void main(String[] args) {
-
-        EventQueue.invokeLater(new Runnable() {
-        
-            @Override
-            public void run() {
-                Tutorial ex = new Tutorial();
-                ex.setVisible(true);
-            }
-        });
+        createLayout(label_titulo,textFieldLogin,quitButton,label_login,label_pass,enterButton,textFieldPass,label_pass2,textFieldPass2);
     }
 }
-
-class ImagePanel extends JPanel {
-
-	  private Image img;
-	  private static final long serialVersionUID = 6841876236948317038L;
-
-	  public ImagePanel(String img) {
-	    this(new ImageIcon(img).getImage());
-	  }
-
-	  public ImagePanel(Image img) {
-	    this.img = img;
-	    Dimension size = new Dimension(img.getWidth(null), img.getHeight(null));
-	    setPreferredSize(size);
-	    setMinimumSize(size);
-	    setMaximumSize(size);
-	    setSize(size);
-	    setLayout(null);
-	  }
-
-	  public void paintComponent(Graphics g) {
-	    //g.drawImage(img, 0, 0, null);
-		  g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
-	  }
-
-	}
-
-
