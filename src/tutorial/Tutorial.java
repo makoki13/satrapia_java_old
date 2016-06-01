@@ -1,14 +1,11 @@
 package tutorial;
 
-import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -39,7 +36,11 @@ public class Tutorial extends JFrame {
         panelSuperior.add(arg[0]);        
         
         JPanel panelMedio = new JPanel();panelMedio.setBorder(BorderFactory.createBevelBorder(1));
-        panelMedio.add(arg[1]);
+        GridLayout glm = new GridLayout(3,2);
+        panelMedio.setLayout(glm);
+        panelMedio.add(arg[3]);panelMedio.add(arg[1]);
+        panelMedio.add(arg[4]);panelMedio.add(arg[6]);
+        panelMedio.add(arg[5]);
         
         JPanel panelInferior = new JPanel();panelInferior.setBorder(BorderFactory.createBevelBorder(1));
         panelInferior.add(arg[2]);
@@ -86,8 +87,13 @@ public class Tutorial extends JFrame {
         
         JButton quitButton = new JButton("SALIR");
         JLabel label = new JLabel("SATRAPÍA");
-        JTextField textField = new JTextField(20);
-        label.setLabelFor(textField);
+        JLabel label_login = new JLabel("USUARIO:");
+        JLabel label_pass = new JLabel("CLAVE:");
+        JButton enterButton = new JButton("ENTRAR");
+        JTextField textFieldLogin = new JTextField(20);
+        JTextField textFieldPass = new JTextField(20);
+        label_login.setLabelFor(textFieldLogin);
+        label_pass.setLabelFor(textFieldPass);
 
         quitButton.addActionListener(new ActionListener() {
             @Override
@@ -96,7 +102,7 @@ public class Tutorial extends JFrame {
             }
         });
 
-        createLayout(label,textField,quitButton);
+        createLayout(label,textFieldLogin,quitButton,label_login,label_pass,enterButton,textFieldPass);
     }
 
     public static void main(String[] args) {
@@ -111,3 +117,4 @@ public class Tutorial extends JFrame {
         });
     }
 }
+
