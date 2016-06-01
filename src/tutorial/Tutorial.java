@@ -37,17 +37,19 @@ public class Tutorial extends JFrame {
 	private void createLayout(JComponent... arg) {
                 
         //JPanel panelMain = new JPanel();
-        ImagePanel panelMain = new ImagePanel(new ImageIcon("fondo.png").getImage());
-        
-        panelMain.setBorder(BorderFactory.createTitledBorder("Entrada"));
+        ImagePanel panelMain = new ImagePanel(new ImageIcon("imagenes/fondoMain.jpg").getImage());
+        //panelMain.setPreferredSize(new Dimension(1024,800)); No funciona        
+        panelMain.setBorder(BorderFactory.createTitledBorder(""));
         
         GridLayout gl = new GridLayout(3,1,5,5);
         panelMain.setLayout(gl);
         
         JPanel panelSuperior = new JPanel();//panelSuperior.setBorder(BorderFactory.createBevelBorder(0));
+        panelSuperior.setOpaque(false);
         panelSuperior.add(arg[0]);        
         
         JPanel panelMedio = new JPanel();//panelMedio.setBorder(BorderFactory.createBevelBorder(1));
+        panelMedio.setOpaque(false);
         //GridLayout glm = new GridLayout(3,2,5,5);
         GridBagLayout gridBag = new GridBagLayout ();        
         GridBagConstraints restricciones = new GridBagConstraints ();
@@ -104,6 +106,7 @@ public class Tutorial extends JFrame {
         panelMedio.setLayout(gridBag);
         
         JPanel panelInferior = new JPanel();//panelInferior.setBorder(BorderFactory.createBevelBorder(1));
+        panelInferior.setOpaque(false);
         panelInferior.setBorder(new EmptyBorder(100, 0, 0, 0));
         panelInferior.add(arg[2]);
                 
@@ -126,7 +129,7 @@ public class Tutorial extends JFrame {
         label_titulo.setFont(f);label_titulo.setForeground(new Color(244,45,77));
                 
         JLabel label_login = new JLabel("USUARIO:");        
-        f = new Font("Serif", Font.PLAIN, 24);
+        f = new Font("Serif", Font.BOLD, 32);
         label_login.setFont(f);
         JLabel label_pass = new JLabel("CLAVE:");
         label_pass.setFont(f);
