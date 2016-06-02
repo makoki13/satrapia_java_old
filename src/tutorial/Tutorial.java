@@ -24,6 +24,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
@@ -35,10 +36,11 @@ public class Tutorial extends JFrame {
 	private static final long serialVersionUID = 1L;
 	
 	JPanel panelPrincipal;
-	JTextField textFieldPass, textFieldLogin;
-	JButton enterButton;
+	JTextField textFieldLogin;
+	JPasswordField textFieldPass;
+	JButton enterButton,nuevoButton;
 	
-	boolean creadoNuevo = false;
+	boolean creadoNuevo, creadoJugador = false;
 
 	public Tutorial() {
 
@@ -56,7 +58,7 @@ public class Tutorial extends JFrame {
         
         
         
-        GridLayout gl = new GridLayout(3,1,5,5);
+        GridLayout gl = new GridLayout(3,4,1,1);
         panelMain.setLayout(gl);
         
         JPanel panelSuperior = new JPanel();//panelSuperior.setBorder(BorderFactory.createBevelBorder(0));
@@ -69,6 +71,9 @@ public class Tutorial extends JFrame {
         GridBagLayout gridBag = new GridBagLayout ();        
         GridBagConstraints restricciones = new GridBagConstraints ();
         restricciones.insets = new Insets(3,3,3,3);
+        
+        
+        restricciones.anchor = GridBagConstraints.EAST;
         
         restricciones.gridx = 0; // El área de texto empieza en la columna cero.
         restricciones.gridy = 0; // El área de texto empieza en la fila cero
@@ -114,9 +119,23 @@ public class Tutorial extends JFrame {
         restricciones.gridheight = 1; // El área de texto ocupa 2 filas.
         restricciones.weighty = 1; // La fila 0 debe estirarse, le ponemos un 1.0
         
+        restricciones.anchor = GridBagConstraints.CENTER;
+        
         restricciones.gridwidth = GridBagConstraints.REMAINDER;  // Fila final        
         gridBag.setConstraints(arg[5], restricciones);
         panelMedio.add(arg[5]);
+        
+        restricciones.anchor = GridBagConstraints.BELOW_BASELINE;
+        
+        restricciones.gridx = 0; // El área de texto empieza en la columna cero.
+        restricciones.gridy = 4; // El área de texto empieza en la fila cero
+        restricciones.gridwidth = 2; // El área de texto ocupa dos columnas.
+        restricciones.gridheight = 2; // El área de texto ocupa 2 filas.
+                
+        restricciones.insets = new Insets(1,1,1,1);
+        restricciones.gridwidth = GridBagConstraints.REMAINDER;  // Fila final        
+        gridBag.setConstraints(arg[7], restricciones);
+        panelMedio.add(arg[7]);
                 
         panelMedio.setLayout(gridBag);
         
@@ -166,23 +185,33 @@ public class Tutorial extends JFrame {
 	
 	private void verificaUsuario() {
 		String login;
-		String pass;
+		char[] pass;
 		
 		login=textFieldLogin.getText();
-		pass=textFieldPass.getText();
+		pass=textFieldPass.getPassword();
 		if (Usuario.verificaLogin(login, pass)==true) {
 			CardLayout cl = (CardLayout)(panelPrincipal.getLayout());
-			if (creadoNuevo==false) {
-				NuevoUsuario panelNuevoUsuario = new NuevoUsuario(cl);
-				panelPrincipal.add(panelNuevoUsuario,"NUEVO");
-				creadoNuevo=true;
+			if (creadoJugador==false) {
+				//NuevoUsuario panelNuevoUsuario = new NuevoUsuario(cl);
+				//panelPrincipal.add(panelNuevoUsuario,"JUGADOR");
+				creadoJugador=true;
 			}
-		    cl.show(panelPrincipal, "NUEVO");
+		    cl.show(panelPrincipal, "JUGADOR");
 			
 		}
 		else {
 			JOptionPane.showMessageDialog(null, "Usuario no existe");
 		}
+	}
+	
+	private void addUsuario() {
+		CardLayout cl = (CardLayout)(panelPrincipal.getLayout());
+		if (creadoNuevo==false) {
+			NuevoUsuario panelNuevoUsuario = new NuevoUsuario(cl);
+			panelPrincipal.add(panelNuevoUsuario,"NUEVO");
+			creadoNuevo=true;
+		}
+		cl.show(panelPrincipal, "NUEVO");		
 	}
 
     private void initUI() {
@@ -197,7 +226,7 @@ public class Tutorial extends JFrame {
         label_titulo.setFont(f);label_titulo.setForeground(new Color(244,45,77));
                 
         JLabel label_login = new JLabel("USUARIO:");        
-        f = new Font("Serif", Font.BOLD, 32);
+        f = new Font("Serif", Font.BOLD, 32);        
         label_login.setFont(f);
         
         JLabel label_pass = new JLabel("CLAVE:");
@@ -211,7 +240,7 @@ public class Tutorial extends JFrame {
         textFieldLogin.addActionListener( enterEnLogin );
         label_login.setLabelFor(textFieldLogin);
         
-        textFieldPass = new JTextField(20);
+        textFieldPass = new JPasswordField(20);
         textFieldPass.setFont(f);        
         textFieldPass.setBorder(BorderFactory.createCompoundBorder(textFieldPass.getBorder(),BorderFactory.createEmptyBorder(0, 5, 5, 0)));
         textFieldPass.addActionListener( enterEnPass );
@@ -240,6 +269,27 @@ public class Tutorial extends JFrame {
             }
           });
         
+        nuevoButton = new JButton("NUEVO USUARIO");
+        nuevoButton.setBackground(new Color(244,144,144));nuevoButton.setForeground(Color.BLACK);
+        nuevoButton.setFont(f);
+        nuevoButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+            	addUsuario();
+            }
+        });
+        nuevoButton.getInputMap().put(KeyStroke.getKeyStroke("pressed ENTER"),"enterEnEnter");
+        nuevoButton.getActionMap().put("enterEnEnter", new AbstractAction("enterEnEnter") {
+            /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			public void actionPerformed(ActionEvent evt) {
+				addUsuario();
+            }
+          });
+        
         JButton quitButton = new JButton("SALIR");
         quitButton.setFont(f);
         
@@ -250,7 +300,7 @@ public class Tutorial extends JFrame {
             }
         });
 
-        createLayout(label_titulo,textFieldLogin,quitButton,label_login,label_pass,enterButton,textFieldPass);
+        createLayout(label_titulo,textFieldLogin,quitButton,label_login,label_pass,enterButton,textFieldPass,nuevoButton);
     }
 
     public static void main(String[] args) {

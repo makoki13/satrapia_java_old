@@ -9,6 +9,8 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -17,23 +19,39 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 
-public class NuevoUsuario extends JPanel {
+public class NuevoUsuario extends JPanel implements Runnable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	JTextField textFieldPass, textFieldPass2, textFieldLogin;
+	JTextField  textFieldLogin;
+	JPasswordField textFieldPass, textFieldPass2;
 	JButton enterButton;
 	
 	CardLayout padre;
 	
-	public NuevoUsuario(CardLayout p) {padre=p; initUI();} 
+	public NuevoUsuario(CardLayout p) {
+		super();
+		
+		padre=p; initUI();
+		
+		this.addComponentListener( new ComponentAdapter() {
+	        @Override
+	        public void componentShown( ComponentEvent e ) {
+	            textFieldLogin.requestFocusInWindow();
+	        }
+	    });
+	} 
+	
+	public void run() { while (true) {repaint();}}
 	
 	Action enterEnLogin = new AbstractAction()
 	{
@@ -97,6 +115,8 @@ public class NuevoUsuario extends JPanel {
         GridBagLayout gridBag = new GridBagLayout ();        
         GridBagConstraints restricciones = new GridBagConstraints ();
         restricciones.insets = new Insets(3,3,3,3);
+        
+        restricciones.anchor = GridBagConstraints.EAST;
         
         restricciones.gridx = 0; // El área de texto empieza en la columna cero.
         restricciones.gridy = 0; // El área de texto empieza en la fila cero
@@ -162,6 +182,8 @@ public class NuevoUsuario extends JPanel {
         restricciones.gridheight = 1; // El área de texto ocupa 2 filas.
         restricciones.weighty = 1; // La fila 0 debe estirarse, le ponemos un 1.0
         
+        restricciones.anchor = GridBagConstraints.CENTER;
+        
         restricciones.gridwidth = GridBagConstraints.REMAINDER;  // Fila final        
         gridBag.setConstraints(arg[5], restricciones);
         panelMedio.add(arg[5]);
@@ -188,6 +210,35 @@ public class NuevoUsuario extends JPanel {
 	
 	public void anterior() {
 		padre.previous(this.getParent());
+	}
+	
+	private void verificaAlta() {
+		String login;
+		char[] pass, pass2;
+		
+		login=textFieldLogin.getText();
+		pass=textFieldPass.getPassword();
+		pass2=textFieldPass2.getPassword();
+		int resultado=Usuario.verificaAlta(login.trim(), pass, pass2);
+		if (resultado==-1) {
+			JOptionPane.showMessageDialog(null, "Las contraseñas no coinciden o están en blanco");
+			textFieldPass.setText("");textFieldPass2.setText("");
+			textFieldPass.requestFocusInWindow();
+		}
+		else if (resultado==-2) {
+			JOptionPane.showMessageDialog(null, "El nombre de usuario no puede estar en blanco");
+			textFieldLogin.setText("");textFieldPass.setText("");textFieldPass2.setText("");
+			textFieldLogin.requestFocusInWindow();
+		}
+		else if (resultado==-3) {
+			JOptionPane.showMessageDialog(null, "Las contraseña no puede estar en blanco");
+			textFieldPass.setText("");textFieldPass2.setText("");
+			textFieldPass.requestFocusInWindow();
+		}
+		else {
+			Usuario.creaUsuario(login,pass);			
+			JOptionPane.showMessageDialog(null, "Usuario creado ");
+		}
 	}
 
 	private void initUI() {
@@ -216,17 +267,17 @@ public class NuevoUsuario extends JPanel {
         textFieldLogin = new JTextField(20);
         textFieldLogin.setFont(f);
         textFieldLogin.setBorder(BorderFactory.createCompoundBorder(textFieldLogin.getBorder(),BorderFactory.createEmptyBorder(0, 5, 5, 0)));
-        textFieldLogin.addActionListener( enterEnLogin );
+        textFieldLogin.addActionListener( enterEnLogin );        
         label_login.setLabelFor(textFieldLogin);
         
-        textFieldPass = new JTextField(20);
+        textFieldPass = new JPasswordField(20);        
         textFieldPass.setFont(f);        
         textFieldPass.setBorder(BorderFactory.createCompoundBorder(textFieldPass.getBorder(),BorderFactory.createEmptyBorder(0, 5, 5, 0)));
         textFieldPass.addActionListener( enterEnPass );
         label_pass.setLabelFor(textFieldPass);
         
-        textFieldPass2 = new JTextField(20);
-        textFieldPass2.setFont(f);        
+        textFieldPass2 = new JPasswordField(20);        
+        textFieldPass2.setFont(f);
         textFieldPass2.setBorder(BorderFactory.createCompoundBorder(textFieldPass2.getBorder(),BorderFactory.createEmptyBorder(0, 5, 5, 0)));
         textFieldPass2.addActionListener( enterEnPass2 );
         label_pass2.setLabelFor(textFieldPass2);
@@ -239,7 +290,7 @@ public class NuevoUsuario extends JPanel {
         enterButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-            	//verificaUsuario();
+            	verificaAlta();
             }
         });
         enterButton.getInputMap().put(KeyStroke.getKeyStroke("pressed ENTER"),"enterEnEnter");
@@ -250,7 +301,7 @@ public class NuevoUsuario extends JPanel {
 			private static final long serialVersionUID = 1L;
 
 			public void actionPerformed(ActionEvent evt) {
-				//verificaUsuario();
+				verificaAlta();
             }
           });
         
