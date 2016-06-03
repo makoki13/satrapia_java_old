@@ -99,7 +99,7 @@ class _interfaz_investigacion {
 	                sql = "SELECT COALESCE(Tiempo,0) AS Tiempo FROM Investigaciones_Niveles WHERE ID_Investigacion = " + id + " AND Nivel = " + siguienteNivel;
 	                ResultSet resultado2 = Jdbc.consulta(Mapa.conexion, sql);
 	                try {
-	        			while(resultado.next()) {
+	        			while(resultado2.next()) {
 	        				tiempo = resultado2.getInt("Tiempo");
 	        			}
 	                } catch (SQLException e) {
@@ -110,7 +110,7 @@ class _interfaz_investigacion {
 	                sql = "SELECT ID_Recurso,Cantidad FROM Investigaciones_Niveles_Recursos WHERE ID_Investigacion = " + id + " AND Nivel = " + siguienteNivel;
 	                ResultSet resultado3 = Jdbc.consulta(Mapa.conexion, sql);
 	                try {
-	        			while(resultado.next()) {
+	        			while(resultado3.next()) {
 	        				idRecurso = resultado3.getInt("ID_Recurso");
 	        				cantidad = resultado3.getLong("Cantidad");
 	        				r = new Recurso(Recurso.TiposRecurso.values()[idRecurso], cantidad, -1, Recurso.TiposReceptor.INVESTIGACION);

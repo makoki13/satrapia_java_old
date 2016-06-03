@@ -29,6 +29,9 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 
+import postgresql.Jdbc;
+import satrapia.Mapa;
+
 public class Tutorial extends JFrame {
 	/**
 	 * 
@@ -40,7 +43,7 @@ public class Tutorial extends JFrame {
 	JPasswordField textFieldPass;
 	JButton enterButton,nuevoButton;
 	
-	boolean creadoNuevo, creadoJugador = false;
+	boolean creadoNuevo, creadoTutorial, panelJugador = false;
 
 	public Tutorial() {
 
@@ -52,11 +55,8 @@ public class Tutorial extends JFrame {
         CardLayout cl = new CardLayout();
         panelPrincipal.setLayout(cl);
         
-        ImagePanel panelMain = new ImagePanel(new ImageIcon("imagenes/fondoMain.jpg").getImage());
-        //panelMain.setPreferredSize(new Dimension(1024,800)); No funciona        
+        ImagePanel panelMain = new ImagePanel(new ImageIcon("imagenes/fondoMain.jpg").getImage());                
         panelMain.setBorder(BorderFactory.createTitledBorder(""));
-        
-        
         
         GridLayout gl = new GridLayout(3,4,1,1);
         panelMain.setLayout(gl);
@@ -186,28 +186,53 @@ public class Tutorial extends JFrame {
 	private void verificaUsuario() {
 		String login;
 		char[] pass;
+		long idJugador;
 		
 		login=textFieldLogin.getText();
 		pass=textFieldPass.getPassword();
-		if (Usuario.verificaLogin(login, pass)==true) {
-			CardLayout cl = (CardLayout)(panelPrincipal.getLayout());
-			if (creadoJugador==false) {
-				//NuevoUsuario panelNuevoUsuario = new NuevoUsuario(cl);
-				//panelPrincipal.add(panelNuevoUsuario,"JUGADOR");
-				creadoJugador=true;
+		idJugador=Usuario.verificaLogin(login, pass);
+		if (idJugador>0L) {
+			int nivelTutorial = Usuario.nivelTutorial(idJugador);
+			if (nivelTutorial==999) {
+				CardLayout cl = (CardLayout)(panelPrincipal.getLayout());
+				if (panelJugador==false) {
+					PanelUsuario panelUsuario = new PanelUsuario(cl,idJugador);
+					panelPrincipal.add(panelUsuario,"JUGADOR");
+					panelJugador=true;
+				}
+				cl.show(panelPrincipal, "JUGADOR");
 			}
-		    cl.show(panelPrincipal, "JUGADOR");
-			
+			else {
+				JOptionPane.showMessageDialog(null, "Panel Tutorial");
+			}			
+		}
+		else if (idJugador==-1) {
+			JOptionPane.showMessageDialog(null, "Debe de indicar un usuario");
+			textFieldLogin.setText("");textFieldPass.setText("");
+			textFieldLogin.requestFocusInWindow();
 		}
 		else {
-			JOptionPane.showMessageDialog(null, "Usuario no existe");
+			JOptionPane.showMessageDialog(null, "Usuario no existe o contraseña incorrecta");
+			textFieldLogin.setText("");textFieldPass.setText("");
+			textFieldLogin.requestFocusInWindow();
 		}
+	}
+	
+	public void muestraPanelTutorial(long idJugador) {
+		//Pendiente ccrear panel tutorial y activarlo desde aqui.
+		CardLayout cl = (CardLayout)(panelPrincipal.getLayout());
+		if (creadoTutorial==false) {			
+			PanelTutorial panelDelTutorial = new PanelTutorial(cl,this);
+			panelPrincipal.add(panelDelTutorial,"TUTORIAL");
+			creadoTutorial=true;
+		}		
+		cl.show(panelPrincipal, "TUTORIAL");
 	}
 	
 	private void addUsuario() {
 		CardLayout cl = (CardLayout)(panelPrincipal.getLayout());
 		if (creadoNuevo==false) {
-			NuevoUsuario panelNuevoUsuario = new NuevoUsuario(cl);
+			NuevoUsuario panelNuevoUsuario = new NuevoUsuario(cl,this);
 			panelPrincipal.add(panelNuevoUsuario,"NUEVO");
 			creadoNuevo=true;
 		}
@@ -275,7 +300,8 @@ public class Tutorial extends JFrame {
         nuevoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-            	addUsuario();
+            	//addUsuario(); descomentar despues de test
+            	muestraPanelTutorial(14);
             }
         });
         nuevoButton.getInputMap().put(KeyStroke.getKeyStroke("pressed ENTER"),"enterEnEnter");
@@ -304,6 +330,10 @@ public class Tutorial extends JFrame {
     }
 
     public static void main(String[] args) {
+    	
+    	Jdbc oBD = new Jdbc();
+    	
+    	Mapa.carga(oBD);
 
         EventQueue.invokeLater(new Runnable() {
         

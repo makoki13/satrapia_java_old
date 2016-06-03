@@ -2,6 +2,7 @@ package postgresql;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -39,15 +40,23 @@ public class Jdbc {
 	}
 	
 	static public int ejecuta(Connection conexion, String sql) {
-		Statement comando = null;
+		PreparedStatement comando = null;
 		try {
-			comando = conexion.createStatement();		
-			int filas = comando.executeUpdate(sql);
+			comando = conexion.prepareStatement(sql);		
+			int filas = comando.executeUpdate();
 			return filas;
 		} catch(Exception e) {
 			System.out.println(e.getMessage());
 			return -1;
-		}		 
-				
+		} finally {
+	        try {
+	            if (comando != null) {
+	                comando.close();
+	            }
+	        } catch (SQLException ex) {
+	        	System.out.println(ex.getMessage());
+				return -2;
+	        }
+	    }
 	}
 }

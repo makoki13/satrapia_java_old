@@ -3,9 +3,11 @@ package tutorial;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,11 +39,15 @@ public class NuevoUsuario extends JPanel implements Runnable {
 	JButton enterButton;
 	
 	CardLayout padre;
+	Tutorial framePadre;
 	
-	public NuevoUsuario(CardLayout p) {
+	Image imagen = new ImageIcon("imagenes/fondoMain.jpg").getImage();
+	
+	public NuevoUsuario(CardLayout p, Tutorial fp) {
 		super();
 		
 		padre=p; initUI();
+		framePadre = fp;
 		
 		this.addComponentListener( new ComponentAdapter() {
 	        @Override
@@ -52,6 +58,12 @@ public class NuevoUsuario extends JPanel implements Runnable {
 	} 
 	
 	public void run() { while (true) {repaint();}}
+	
+	@Override
+    public void paintComponent(Graphics g){
+		super.paintComponent(g);
+        g.drawImage(imagen, 0, 0, this.getWidth(), this.getHeight(), this);
+    }
 	
 	Action enterEnLogin = new AbstractAction()
 	{
@@ -96,12 +108,11 @@ public class NuevoUsuario extends JPanel implements Runnable {
 	};
 	
 	private void createLayout(JComponent... arg) {        
-        ImagePanel panelMain = new ImagePanel(new ImageIcon("imagenes/fondoMain.jpg").getImage());
-        //panelMain.setPreferredSize(new Dimension(1024,800)); No funciona        
-        panelMain.setBorder(BorderFactory.createTitledBorder(""));
-        
-        
-        
+        //ImagePanel panelMain = new ImagePanel(new ImageIcon("imagenes/fondoMain.jpg").getImage());  
+        JPanel panelMain = new JPanel();
+        //panelMain.setBorder(BorderFactory.createTitledBorder(""));
+        panelMain.setOpaque(false);
+                
         GridLayout gl = new GridLayout(3,1,5,5);
         panelMain.setLayout(gl);
         
@@ -209,7 +220,7 @@ public class NuevoUsuario extends JPanel implements Runnable {
     }
 	
 	public void anterior() {
-		padre.previous(this.getParent());
+		padre.previous(this.getParent());		
 	}
 	
 	private void verificaAlta() {
@@ -236,8 +247,16 @@ public class NuevoUsuario extends JPanel implements Runnable {
 			textFieldPass.requestFocusInWindow();
 		}
 		else {
-			Usuario.creaUsuario(login,pass);			
-			JOptionPane.showMessageDialog(null, "Usuario creado ");
+			long idUsuario = Usuario.creaUsuario(login,pass);	//Pendiente devolver el nuevo ID
+			if (idUsuario==-1){
+				JOptionPane.showMessageDialog(null, "¡Este usuario ya existe!");
+				textFieldLogin.setText("");textFieldPass.setText("");textFieldPass2.setText("");
+				textFieldLogin.requestFocusInWindow();
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "Usuario creado ");
+				framePadre.muestraPanelTutorial(idUsuario);
+			}
 		}
 	}
 

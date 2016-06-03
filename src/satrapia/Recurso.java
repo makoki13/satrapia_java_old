@@ -8,7 +8,7 @@ import postgresql.Jdbc;
 public class Recurso {
     public enum TiposRecurso 
     {
-        COMIDA, HIERRO, ORO, MADERA, PIEDRA, DINERO, EJERCITO, TRABAJADORES, ARQUEROS, INFANTERIA, CABALLERIA, ASALTO, GENERAL;
+        COMIDA, HIERRO, ORO, MADERA, PIEDRA, DINERO, EJERCITO, TRABAJADORES, ESMERALDAS,PIRITA, INFANTERIA, ARQUEROS, CABALLERIA, ASALTO, GENERAL;
     	
         @Override
         public String toString() {
@@ -21,8 +21,10 @@ public class Recurso {
             case DINERO: return "DINERO";
             case EJERCITO: return "EJERCITO";
             case TRABAJADORES: return "TRABAJADORES";
-            case ARQUEROS: return "ARQUEROS";
+            case ESMERALDAS: return "ESMERALDAS";
+            case PIRITA: return "PIRITA";
             case INFANTERIA: return "INFANTERIA";
+            case ARQUEROS: return "ARQUEROS";            
             case CABALLERIA: return "CABALLERIA";
             case ASALTO: return "ASALTO";
             case GENERAL: return "GENERAL";

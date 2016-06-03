@@ -9,20 +9,20 @@ import postgresql.Jdbc;
 
 public class Productor {
 	public enum TiposProductor {
-		CASTILLO, //Produce dinero mediante impuestos
-        ACADEMIA, //Genera puntos de investigacion
-        CUARTEL, //Genera tropas que van a ejercitos
-        CENTRO_INTELIGENCIA, //Generan tropas especiales (espias)
-        ALMACEN, //NO genera pero almacena
-        BANCO, //Es un almacen que almacena y si genera
-        EMBAJADA, //Para satrapas - Gestion de ordenes y eventos
-        GOBIERNO, // Para Emperadores y Jefes - Gestion de ordenes y eventos
-        GRANJA, // Genera comida
-        MINA_HIERRO, // Genera hierro
-        MINA_ORO, // Genera oro
-        SERRERIA, // Genera madera
-        CANTERA, // Genera piedra
-        EJERCITO //Almacena tropas
+		CASTILLO, //Produce dinero mediante impuestos 0
+        ACADEMIA, //Genera puntos de investigacion 1
+        CUARTEL, //Genera tropas que van a ejercitos 2
+        CENTRO_INTELIGENCIA, //Generan tropas especiales (espias) 3
+        ALMACEN, //NO genera pero almacena 4
+        BANCO, //Es un almacen que almacena y si genera 5
+        EMBAJADA, //Para satrapas - Gestion de ordenes y eventos 6
+        GOBIERNO, // Para Emperadores y Jefes - Gestion de ordenes y eventos 7
+        GRANJA, // Genera comida 8
+        MINA_HIERRO, // Genera hierro 9
+        MINA_ORO, // Genera oro 10
+        SERRERIA, // Genera madera 11
+        CANTERA, // Genera piedra 12
+        EJERCITO //Almacena tropas 13
     };
 
     public TiposProductor tipo;
@@ -660,7 +660,7 @@ public class Productor {
     				long idRecurso;
     				try {
     	    			while(resultado2.next()) {
-    	    				 idRecurso = resultado2.getLong("Jugador");
+    	    				 idRecurso = resultado2.getLong("id");
     	                     Recurso r = new Recurso(idRecurso);
     	                     p.recursos.add(r);
     	    			}

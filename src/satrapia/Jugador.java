@@ -111,6 +111,18 @@ public class Jugador {
         //Creamos la poblacion
         this.dirigente._set_Capital(new Poblacion(this, Poblacion.TiposPoblacion.CAPITAL, c.getID()));         
     }
+    
+    public static long existe(String usuario, String pass) {
+    	return _interfaz_Jugador.existe(usuario, pass); 
+    }
+    
+    public static long existe(String usuario) {
+    	return _interfaz_Jugador.existe(usuario);
+    }
+    
+    public static long creaUsuario(String usuario, String pass) {
+    	return _interfaz_Jugador.creaUsuario(usuario, pass);
+    }
 }
 
 class _interfaz_Jugador {
@@ -172,7 +184,7 @@ class _interfaz_Jugador {
     {
         __usuario miUsuario = new __usuario();
 
-        String sql = "SELECT Nombre,Pass,Tipo,Region,COALESCE(NivelTutorial,1) AS NivelTutorial FROM Usuarios WHERE ID=" + id;
+        String sql = "SELECT ID,Nombre,Pass,Tipo,Region,COALESCE(NivelTutorial,1) AS NivelTutorial FROM Usuarios WHERE ID=" + id;
         ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);        
 		try {			
 			while(resultado.next()) {

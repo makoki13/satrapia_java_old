@@ -106,8 +106,8 @@ final class _interfaz_Mapa {
 		long numRegistros = 1;
 		        
 		long filas = Jdbc.ejecuta(Mapa.conexion, "BEGIN");
-		if (filas>0) {
-			String sql = "SELECT COALESCE(ID,1) FROM ID_Elementos WHERE Tipo=$$" + tipo + "$$ FOR UPDATE";
+		if (filas>=0) {
+			String sql = "SELECT COALESCE(ID,1) AS ID FROM ID_Elementos WHERE Tipo=$$" + tipo + "$$ FOR UPDATE";
 			ResultSet resultado = Jdbc.consulta(Mapa.conexion, sql);
 			try {
 				while(resultado.next()) {
